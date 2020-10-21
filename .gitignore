@@ -1,0 +1,17 @@
+env/
+.venv/
+.idea/
+.vscode/
+.rsc/
+logs/*
+__pycache__/
+*.pyc
+log/
+MyTradingBot.bat
+MyTradingBot.code-workspace
+activate.bat
+activity.log
+activity.log.*
+*copy*
+tmp/
+xtb.json

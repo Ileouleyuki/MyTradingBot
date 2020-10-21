@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+<!-- Page Content -->
+<main role="main" class="flex-shrink-0">
+    <div class="container-fluid" style="display: flex; justify-content: center; align-items: center; height: 45vh">
+        <h1 class="display-1 text-danger">401 - Vous n'etes pas connecté</h1>
+    </div>
+    <div class="container-fluid" style="display: flex; justify-content: center; align-items: center;">
+        <h1 class="h1">Désolé, vous n'êtes pas authentifié. Veuillez vous connecter avec des informations d'identification valides</h1>
+    </div>
+</main>
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function () {
+        // -- Recuperation des Parametres Utilisateurs
+        // Animate loader off screen
+        //param_user = action_get_param_table(param_field, processData);
+        setTimeout(app.stopLoader, config.timeout);
+        // -- Chargement du tableau PARC AIRCOM
+    });// -- Fin du document JAVASCRIPT
+</script>
+{% endblock %}

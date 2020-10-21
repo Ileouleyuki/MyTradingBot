@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+    <div class="container-fluid mt-3">
+
+        <h1 class="display-3">{{info.app.name}} - {{info.app.version}}</h1>
+        <hr>
+        <div class="row">
+            <div class="col-md-4">
+                <img class="img-fluid" src="https://actufinance.fr/wp-content/uploads/2020/08/trading-1990.jpg" width="600px" height="900px" alt="">
+            </div>
+            <div class="col-md-8">
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ipsum risus, posuere non pellentesque
+                    eu, accumsan at eros. Duis ac nunc vitae nibh condimentum vestibulum vel id tortor. Etiam quis
+                    tincidunt ante. Duis ligula nulla, blandit non tristique eget, pellentesque mattis sapien. Sed neque
+                    nunc, elementum eu sapien ut, ultricies vulputate nibh. Vestibulum porta tellus non odio commodo
+                    tristique.
+                    Mauris viverra tortor vel massa pretium vestibulum. Nam gravida lobortis ipsum, eu blandit dolor
+                    cursus sed.
+                </p>
+                <p>
+                    Donec tempor consequat lacus, vel efficitur ipsum dictum scelerisque. Cras rutrum posuere accumsan.
+                    Curabitur vitae iaculis elit, nec consequat tellus.
+                    Aenean ut mattis dui. Cras pharetra a enim eget consequat. Nullam gravida ut nisl ut volutpat. Donec
+                    sed odio non lacus tempus fringilla vel nec est.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis auctor augue, quis imperdiet
+                    odio lacinia eget.
+                    Donec eu lorem nec nisi laoreet placerat at id arcu. Interdum et malesuada fames ac ante ipsum
+                    primis in faucibus.
+                    Duis vel nulla quis augue vestibulum pulvinar quis sit amet dolor.
+                    Maecenas mi orci, rhoncus quis eros eu, auctor auctor nunc. Donec dignissim dapibus sem. Quisque
+                    eget consectetur purus.
+                </p>
+                <p>
+                    Sed iaculis urna ut elementum pulvinar. In tincidunt tortor eros. Suspendisse tincidunt rhoncus
+                    tellus hendrerit gravida. Pellentesque molestie magna in nunc pretium sodales. Suspendisse velit
+                    neque, lacinia non augue quis, ultrices porttitor ipsum. Donec mollis nibh nunc, id porta dui mollis
+                    ac. Ut at elit id sem semper maximus et ac dui. Phasellus rhoncus imperdiet efficitur.
+                </p>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ipsum risus, posuere non pellentesque
+                    eu, accumsan at eros. Duis ac nunc vitae nibh condimentum vestibulum vel id tortor. Etiam quis
+                    tincidunt ante. Duis ligula nulla, blandit non tristique eget, pellentesque mattis sapien. Sed neque
+                    nunc, elementum eu sapien ut, ultricies vulputate nibh. Vestibulum porta tellus non odio commodo
+                    tristique.
+                    Mauris viverra tortor vel massa pretium vestibulum. Nam gravida lobortis ipsum, eu blandit dolor
+                    cursus sed.
+                </p>
+                <p>
+                    Donec tempor consequat lacus, vel efficitur ipsum dictum scelerisque. Cras rutrum posuere accumsan.
+                    Curabitur vitae iaculis elit, nec consequat tellus.
+                    Aenean ut mattis dui. Cras pharetra a enim eget consequat. Nullam gravida ut nisl ut volutpat. Donec
+                    sed odio non lacus tempus fringilla vel nec est.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis auctor augue, quis imperdiet
+                    odio lacinia eget.
+                    Donec eu lorem nec nisi laoreet placerat at id arcu. Interdum et malesuada fames ac ante ipsum
+                    primis in faucibus.
+                    Duis vel nulla quis augue vestibulum pulvinar quis sit amet dolor.
+                    Maecenas mi orci, rhoncus quis eros eu, auctor auctor nunc. Donec dignissim dapibus sem. Quisque
+                    eget consectetur purus.
+                </p>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <p>
+                    Donec tempor consequat lacus, vel efficitur ipsum dictum scelerisque. Cras rutrum posuere accumsan.
+                    Curabitur vitae iaculis elit, nec consequat tellus.
+                    Aenean ut mattis dui. Cras pharetra a enim eget consequat. Nullam gravida ut nisl ut volutpat. Donec
+                    sed odio non lacus tempus fringilla vel nec est.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis auctor augue, quis imperdiet
+                    odio lacinia eget.
+                    Donec eu lorem nec nisi laoreet placerat at id arcu. Interdum et malesuada fames ac ante ipsum
+                    primis in faucibus.
+                    Duis vel nulla quis augue vestibulum pulvinar quis sit amet dolor.
+                    Maecenas mi orci, rhoncus quis eros eu, auctor auctor nunc. Donec dignissim dapibus sem. Quisque
+                    eget consectetur purus.
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function(){
+        setTimeout(app.stopLoader, config.timeout );
+    });// -- Fin du document JAVASCRIPT
+</script>   
+{% endblock %}

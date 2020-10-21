@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-100">
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Logiciel Etude Optique">
+  <meta name="author" content="Pole de Conecption Nationale - Orange SA">
+  <link href="{{url_for('static', filename='img/favicon.ico')}}" rel="shortcut icon" type="image/vnd.microsoft.icon">
+  <title>{{info.app.name}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  
+  <!-- Bootstrap Core CSS (Theme Simple) -->
+  <!-- 
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/bootstrap/4.4.1/css/simplex.min.css')}}"
+  type="text/css" media="screen"> 
+  -->
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/bootstrap/4.4.1/css/darkly.min.css')}}"
+  type="text/css" media="screen"> 
+
+  <!-- Font Awsome -->
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/fontawesome/5.12.0/css/all.min.css')}}"
+    type="text/css" media="screen" />
+  <!-- Styles personnalisés pour ce modèle -->
+  <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}" type="text/css" media="screen">
+  {% block stylesheets %}{% endblock %}
+</head>
+
+<body class="d-flex flex-column h-100">
+  <!-- --------------------------------------------------- -->
+  <!-- NAVBAR -->
+  <!-- --------------------------------------------------- -->
+  <header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark navbar-static-top bg-dark">
+      <a class="navbar-brand" href="/index"><img src="{{url_for('static', filename='img/logo.jpg')}}" height="30px" alt="LOGO" title="LOGO"/></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <!-- ------------------------ -->
+        <!-- Partie de Droite du Menu -->
+        <!-- ------------------------ -->
+        <ul class="navbar-nav mr-auto">
+          {% if info.user.is_logged_in is defined and info.user.is_logged_in == True %}
+          <!-- -->
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.home') }}"><i class="fas fa-search-dollar"></i>&nbspDashBoard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.test') }}"><i class="fas fa-search-dollar"></i>&nbspTest</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.markets') }}"><i class="fas fa-search-dollar"></i>&nbspMarchés</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.perf') }}"><i class="fas fa-funnel-dollar"></i>&nbspPerformance</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.orders') }}"><i class="fab fa-first-order"></i>&nbspOrdres</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home.backtest') }}"><i class="fas fa-search-dollar"></i>&nbspBackTest</a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <!-- ------------------------ -->
+        <!-- Partie de Droite du Menu -->
+        <!-- ------------------------ -->
+        {% if info.user.is_logged_in is not defined or info.user.is_logged_in == None  %}
+        <form class="form-inline mt-2 mt-md-0">
+          <a class="btn btn-secondary  my-2 my-sm-0" href="/login" type="button">Connexion</a>
+        </form>
+        {% else %}
+        <!-- HORLOGE -->
+        <li class="nav-link disabled">
+          <a class="text-light" href="" tabindex="-1" aria-disabled="true" id='Horloge'>Horloge</a>
+        </li>
+        <!-- UTILISATEUR -->
+        <li class="nav-link dropdown">
+          <a class="dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            <span class="fas fa-user"></span>&nbsp
+          </a>
+          <div class="dropdown-menu dropdown-menu-right dropdown-menu-navbar" aria-labelledby="navbarDropdown">
+            <div class="dropdown-item disabled">
+              <div class="row">
+                <div class="col-sm-12 col-md-12" style="text-align:center;">
+                  <i class="fas fa-user display-3 center-block"></i>
+                </div>
+              </div>
+              <hr>
+              <div class="row">
+                <div class="col-sm-12 col-md-12">
+                  <h5>{{info.user.displayName}}</h5>
+                  <small><cite title="Role">{{info.user.role}}</cite></small>
+                  <p>{{info.user.username}}</p>
+                </div>
+              </div>
+            </div>
+            <hr>
+            {% if info.user.role is defined and info.user.role == 'ADMIN'  %}
+            <!-- Administration -->
+            <h6 class="dropdown-header">Administration</h6>
+            <a class="dropdown-item" href="{{ url_for('admin.users') }}">
+              <i class="fas fa-user"></i>&nbspUtilisateurs
+            </a>
+            <a class="dropdown-item" href="{{ url_for('admin.watcher') }}">
+              <i class="fas fa-glasses"></i>&nbspObservateur
+            </a>
+            <a class="dropdown-item" href="{{ url_for('admin.activity') }}">
+              <i class="fas fa-newspaper"></i>&nbspActivité
+            </a>
+            <hr>
+            {% endif %}
+            <hr>
+            <!-- Deconnection -->
+            <a class="dropdown-item" href="/logout">
+              <i class="fas fa-times-circle"></i>&nbspQuitter
+            </a>
+          </div>
+        </li>
+        {% endif %}
+
+      </div>
+    </nav>
+  </header>
+
+
+
+  <!-- --------------------------------------------------- -->
+  <!-- CONTENT -->
+  <!-- --------------------------------------------------- -->
+  {% block content %}{% endblock %}
+  <!-- --------------------------------------------------- -->
+  <!-- MODAL - PROGRESS -->
+  <!-- --------------------------------------------------- -->
+  <div class="modal fade" id="loadMe" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered mw-100 w-50" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title pull-left font-weight-bold" id="progress-title-modal"><i
+              class="fas fa-cogs"></i>&nbspDéroulement des
+            Opérations</h2>
+          <h2 class="modal-title pull-right font-weight-bold" id="progress-percent-modal">0 %</h2>
+        </div>
+        <div class="modal-body">
+          <!-- Message -->
+          <div class="row">
+            <div class="col-sm-12">
+              <h5 id="progress-oper-modal" class="font-italic ">Message</h5>
+            </div>
+          </div>
+          <!-- Progress Bar -->
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="progress" id="progress-bar-modal">
+                <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 100%"
+                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <!-- Texte -->
+          <div class="row">
+            <div class="col-sm-12">
+              <div style="min-height: 300px;max-height: 300px;overflow-y: auto;" id="log-container" class="container">
+                <ul id="progress-txt-modal" class="list-group">
+                  
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-close" class="btn btn-lg btn-block btn-primary display-1 d-none" data-dismiss="modal"
+            disabled>Fermeture</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- --------------------------------------------------- -->
+  <!-- FOOTER -->
+  <!-- --------------------------------------------------- -->
+  <footer class="footer bg-dark mt-auto py-3">
+    <div class="container-fluid">
+      <div class=" row">
+        <div class="text-left mr-3 col-12 col-md-auto footer-item text-light">
+          <a href="#" title="Haut de page" class="text-light">Haut de page</a>
+        </div>
+        <div class="text-left mr-3 col-12 col-md-auto footer-item text-light">
+          <a href="/changelog" title="Changements" class="text-light">Modifications</a>
+        </div>
+        <div class="text-left mr-3 col-12 col-md-auto footer-item text-light">
+          <a href="https://co.xtb.com/#/login" target='_blank' title="Changements" class="text-light">Plateforme XTB</a>
+        </div>
+      </div>
+      <hr class="my-2">
+      <div class="row">
+        <div class="text-left mr-3 col-12 col-md-auto footer-item text-light">
+          <span class="">
+            Application <b>{{ info.app.name }}</b> Version <b>{{info.app.version}}</b> développé par {{ info.app.auteur }}.
+            Hebergé sur {{ info.system.main.NODE }} ({{ info.system.main.NAME }} {{ info.system.main.RELEASE }}) depuis
+            Python {{ info.system.python.VERSION }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <!-- ===============================================================================  -->
+  <!-- JAVASCRIPT -->
+  <!-- ===============================================================================  -->
+  <!-- JAVASCRIPT : jQuery -->
+  <script type="text/javascript" language="javascript"
+    src="{{url_for('static', filename='assets/jquery/3.4.1/jquery-3.4.1.min.js')}}"></script>
+  <!-- Bootstrap Core JS (Theme Simple) -->
+  
+  <!-- JAVASCRIPT : Bootstrap bundle (Bootstrap + Popper) -->
+  <script type="text/javascript" language="javascript"
+    src="{{url_for('static', filename='/assets/bootstrap/4.4.1/js/bootstrap.bundle.min.js')}}"></script>
+  
+  <!-- JAVASCRIPT : MomentJS -->
+  <script type="text/javascript" language="javascript"
+    src="{{url_for('static', filename='assets/momentjs/2.24.0/moment-with-locales.min.js')}}"></script>
+  <!-- JAVASCRIPT : Notify -->
+  <script type="text/javascript" language="javascript"
+    src=" {{url_for('static', filename='assets/notify/3.1.3/bootstrap-notify.min.js')}}"></script>
+  <!-- JAVASCRIPT : BootBox -->
+  <script type="text/javascript" language="javascript"
+    src="{{url_for('static', filename='assets/bootbox/5.4.0/bootbox.min.js')}}"></script>
+  <!-- Custom JavaScript -->
+  <script type="text/javascript" language="javascript" src=" {{url_for('static', filename='js/app.js')}}"></script>
+  <script type="text/javascript" language="javascript">window.onload = app.clock(); app.startLoader('body')</script>
+  <!-- Attribuer toutes les variables de configration -->
+  <script>config = $.parseJSON('{{ info.js|tojson }}');</script>
+
+  <!-- ===============================================================================  -->
+  <!-- CUSTOM -->
+  <!-- ===============================================================================  -->
+  {% block javascript %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+
+    <div class="container-fluid mt-3">
+        <div class="jumbotron">
+            <h1 class="display-4">Hello, world!</h1>
+            <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+            <hr class="my-4">
+            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
+            <a class="btn btn-primary btn-lg" href="#" role="button" id="btn-test">Test JSON</a>
+            <a class="btn btn-primary btn-lg" href="#" role="button" id="btn-test-2">Test JSON (2)</a>
+            <a class="btn btn-primary btn-lg" href="#" role="button" id="btn-test-progress">Test JSON (Progression)</a>
+          </div>
+    </div>
+
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function(){
+        setTimeout(app.stopLoader, config.timeout );
+    });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // Clique sur test reponse JSON
+    // =================================================================================
+    $("#btn-test").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajax.send("{{ url_for('api.test.testJSON') }}", data, true)
+    });
+    // =================================================================================
+    // Clique sur test reponse JSON
+    // =================================================================================
+    $("#btn-test-2").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        $.post("{{ url_for('api.test.testJSON') }}", data, function (result) {
+            notify.info(result)
+        } , "json")
+        .done(function(msg){ notify.success(msg) })
+        .fail(function(xhr, status, error) {
+            notify.error(xhr.responseJSON)
+        });
+    });
+
+    // =================================================================================
+    // Clique sur test reponse JSON (PROGRESSION)
+    // =================================================================================
+    $("#btn-test-progress").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajaxSSE.send("{{ url_for('api.test.testJSONProgress') }}", data, true)
+    });
+</script>   
+{% endblock %}

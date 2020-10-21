@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}
+<!-- DataTables + YADCF Filters -->
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.css')}}" rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/css/buttons.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/css/fixedHeader.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/css/colReorder.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/css/rowGroup.bootstrap4.min.css')}} " rel="stylesheet">
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+    <div class="container-fluid mt-3">
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-search-dollar"></i>&nbspMarchés&nbsp
+          <span id="SpanTotalGlobale" class="badge badge-dark">0</span></h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sync fa-sm text-white-50"></i>&nbspSynchronisation</a>
+      </div>
+
+
+
+
+
+
+
+        <table id="table" class="table table-striped py-3" style="width:100%"></table>
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Column heading</th>
+                <th scope="col">Column heading</th>
+                <th scope="col">Column heading</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-active">
+                <th scope="row">Active</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr>
+                <th scope="row">Default</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-primary">
+                <th scope="row">Primary</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-secondary">
+                <th scope="row">Secondary</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-success">
+                <th scope="row">Success</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-danger">
+                <th scope="row">Danger</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-warning">
+                <th scope="row">Warning</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-info">
+                <th scope="row">Info</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-light">
+                <th scope="row">Light</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+              <tr class="table-dark">
+                <th scope="row">Dark</th>
+                <td>Column content</td>
+                <td>Column content</td>
+                <td>Column content</td>
+              </tr>
+            </tbody>
+          </table>
+          
+    </div>
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<!-- JS - DataTables + YADCF (Filters) -->
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.js')}}"></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedColumns-3.3.0/js/fixedColumns.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/dataTables.buttons.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/JSZip-2.5.0/jszip.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/pdfmake.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/vfs_fonts.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.html5.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.print.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.colVis.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/js/dataTables.colReorder.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/js/dataTables.fixedHeader.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
+<script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function(){
+        setTimeout(app.stopLoader, config.timeout );
+    });// -- Fin du document JAVASCRIPT
+    
+</script>   
+{% endblock %}

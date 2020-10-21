@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+<!-- Page Content -->
+<main role="main" class="flex-shrink-0">
+    <div class="container-fluid" style="display: flex; justify-content: center; align-items: center; height: 45vh">
+        <h1 class="display-1 text-danger">400 - Mauvaise Requete</h1>
+    </div>
+    <div class="container-fluid" style="display: flex; justify-content: center; align-items: center;">
+        <h1 class="h1">
+            Le code d'état de réponse de requête incorrecte HTTP 400 HyperText Transfer Protocol (HTTP) indique que le serveur ne peut pas ou ne traitera pas la requête en raison de quelque chose qui est perçu comme une erreur client (par exemple, une syntaxe de requête incorrecte, un cadrage de message de requête invalide ou une requête trompeuse). routage).
+
+        </h1>
+    </div>
+</main>
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function () {
+        // -- Recuperation des Parametres Utilisateurs
+        // Animate loader off screen
+        //param_user = action_get_param_table(param_field, processData);
+        setTimeout(app.stopLoader, config.timeout);
+        // -- Chargement du tableau PARC AIRCOM
+    });// -- Fin du document JAVASCRIPT
+</script>
+{% endblock %}
