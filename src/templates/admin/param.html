@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}
+<!-- DataTables + YADCF Filters -->
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.css')}}" rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/css/buttons.bootstrap4.min.css')}} "
+    rel="stylesheet">
+<link
+    href="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/css/fixedHeader.bootstrap4.min.css')}} "
+    rel="stylesheet">
+<link
+    href="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/css/colReorder.bootstrap4.min.css')}} "
+    rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/css/rowGroup.bootstrap4.min.css')}} "
+    rel="stylesheet">
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+    <div class="container-fluid mt-3">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800"><span class="fas fa-hammer"></span>&nbspGestion des Parametres&nbsp</h1>
+            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"  id="AddParamModal"><i
+                class="fas fa-folder-plus"></i>&nbspAjouter</a>
+        </div>
+        <hr>
+        <table id="table" class="table table-striped" style="width:100%"></table>
+    </div>
+    {#  ------------------------------------------------------------------------------------------------------------------- #}
+    {#  MODAL #}
+    {# ------------------------------------------------------------------------------------------------------------------- #}
+    <div class="modal fade" id="ParamModal" tabindex="-1" role="dialog" aria-labelledby="ParamModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header border-bottom-0 bg-dark">
+                    <h5 class="modal-title text-light" id="ParamModalLabel"><i class="fa fa-plus-circle"></i>&nbspAjout
+                        d'un Parametre</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- Body -->
+                <div class="modal-body">
+                    <!-- ALERTS-->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div id="alerts-error"></div>
+                        </div>
+                    </div>
+                    <form class="needs-validation" novalidate id="form-param">
+                        <input type="hidden" name="id" id="id" value="">
+                        <!-- -->
+                        <div class="form-row">
+                            <div class="col-md-6 mb-6">
+                                <label for="code">Code</label>
+                                <input type="text" class="form-control" id="code" name="code"
+                                    placeholder="Code" value="" maxlength="8" required >
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-6">
+                                <label for="value">Valeur</label>
+                                <input type="text" class="form-control" id="value" name="value"
+                                    placeholder="Valeur" value="" required
+                                    maxlength="8">
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- -->
+
+                        <!-- -->
+                        <div class="form-row">
+                            <div class="col-md-12 mb-12">
+                                <label for="libelle">Libelle</label>
+                                <input type="libelle" class="form-control" id="libelle" name="libelle" placeholder="Libelle"
+                                    value="" required>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <!-- -->
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <label class="font-weight-bold" for="created_at">Creation</label>
+                            </div>
+                            <div class="col-md-9 text-center">
+                                <label for="email" class="text-right" name="created_at"></label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-3 ">
+                                <label class="font-weight-bold" for="updated_at">Mise à jour</label>
+                            </div>
+                            <div class="col-md-9 text-center">
+                                <label for="email" class="text-right" name="updated_at"></label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Footer -->
+                <div class="modal-footer">
+                    <button type="button" id="ValidationButton"
+                        class="btn btn-primary btn-block text-light font-weight-bold">Valider</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<!-- JS - DataTables + YADCF (Filters) -->
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.js')}}"></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/FixedColumns-3.3.0/js/fixedColumns.bootstrap4.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/dataTables.buttons.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/JSZip-2.5.0/jszip.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/pdfmake.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/vfs_fonts.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.html5.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.print.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.colVis.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/js/dataTables.colReorder.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/js/dataTables.fixedHeader.min.js')}} "></script>
+<script
+    src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
+<script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function () {
+        load_data_table();
+    });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // -- Refraichissement
+    // =================================================================================
+    function refresh() {
+        $('#table').DataTable().ajax.reload()
+    }  
+    // =================================================================================
+    // -- MODAL ORDER
+    // =================================================================================
+    // =================================================================================
+    // -- Edition d'un element
+    // =================================================================================
+    function action_edit_param(ROW_INDEX) {
+        // -- Reset du Form
+        $("#form-param").trigger('reset');
+        // -- Recuperation des données du tableau
+        var data = $('#table').DataTable().row(ROW_INDEX).data()
+        // -- Integration des infos dans la modal
+        $("#ParamModal input[name=id]").val(data.id),
+        $("#ParamModal input[name=code]").val(data.code),
+        $("#ParamModal input[name=libelle]").val(data.libelle),
+        $("#ParamModal input[name=value]").val(data.value),
+        $("#ParamModal label[name=updated_at]").html(formatDt.DateTimeBasicFormatter(data.updated_at_utc, 'display', null)),
+        $("#ParamModal label[name=created_at]").html(formatDt.DateTimeBasicFormatter(data.created_at_utc, 'display', null)),
+        
+        // -- Affichage de la modal
+        $('#ParamModal').modal('show')
+    }
+    // =================================================================================
+    // -- Affichage Modal AJOUTER
+    // =================================================================================
+    $("#AddParamModal").click(function (e) {
+        // -- Reset du Form
+        $("#form-param").trigger('reset');
+        // -- Pour etre sur que le input id hidden soit bien nul;
+        $("#ParamModal input[name=id]").val("")
+        // -- Affichage de la Modal
+        $('#ParamModal').modal('show')
+    });
+    // =================================================================================
+    // -- UPDATE/INSERT un UTILISATEUR
+    // =================================================================================
+    $("#ValidationButton").click(function (e) {
+        if ($("#form-param")[0].checkValidity()) {
+            e.preventDefault();
+            // -- Recuperation des données du Formulaire
+            params = helpers.serializetoFormData('#form-param', true)
+            //var data = helpers.serializeForm($("#form-user"))
+            // -- Verification si id est saisie, si oui : UPDATE
+            if (params.id.length > 0) {
+                ajax.send("{{ url_for('api.admin.updateParam') }}", params, "refresh()")
+            } else {
+                ajax.send("{{ url_for('api.admin.insertParam') }}", params, "refresh()")
+            }
+            // -- Affichage de la Modal
+            $('#ParamModal').modal('hide')
+        } else {
+            //Validate Form
+            $("#form-param")[0].reportValidity()
+        }
+
+    });
+    // =================================================================================
+    // -- Supprimer un UTILISATEUR
+    // =================================================================================
+    function action_delete(ROW_INDEX) {
+        // -- Construction des Parametres
+        params = {}
+        params.id =  $('#table').DataTable().row(ROW_INDEX).data().id
+        //params = helpers.serializetoFormData('#form-add-etude')
+        ajax.send("{{ url_for('api.admin.deleteUser') }}", params, "refresh()")
+    }
+    // =================================================================================
+    // -- Debloquer un UTILISATEUR
+    // =================================================================================
+    function action_deblock(ROW_INDEX) {
+        // -- Construction des Parametres
+        params = {}
+        params.id =  $('#table').DataTable().row(ROW_INDEX).data().id
+        //params = helpers.serializetoFormData('#form-add-etude')
+        ajax.send("{{ url_for('api.admin.deblockUser') }}", params, "refresh()")
+    }
+    // =================================================================================
+    // -- Envoi un Email
+    // =================================================================================
+    function action_email(ROW_INDEX) {
+        // -- Definition des Destinataires
+        email_dest = $('#table').DataTable().row(ROW_INDEX).data().email;
+        // -- Definition du Sujet
+        subject_message = "Accés";
+        // -- Definitiaon du Corps
+        body_message = "Bonjour,%0A%0A";
+        body_message = body_message + "Voici vos identifiants de connexion :%0A%0A";
+        body_message = body_message + "LOGIN : " + $('#table').DataTable().row(ROW_INDEX).data().username + "%0A";
+        body_message = body_message + "Mot de passe : " + $('#table').DataTable().row(ROW_INDEX).data().password + "%0A%0A";
+        body_message = body_message + "Lien : " + config.root + " %0A%0A";
+        body_message = body_message + "A utiliser uniquement avec Firefox.%0A";
+        // -- Debuggage
+        //console.log("DEST : " + email_dest);
+        //console.log("SUJET : " + subject_message);
+        //console.log("BODY : " + body_message);
+        // -- Appelle de la fonction de mail
+        app.createMailto(email_dest, subject_message, body_message, "");
+    }  
+
+    // =================================================================================
+    // -- Chargement du Tableau
+    // =================================================================================
+    function load_data_table() {
+        table = $('#table').DataTable({
+            // -- ------------------ --
+            // -- PARAMETRE GENERAUX
+            // -- ------------------ --
+            "language": {
+                "url": "/static/assets/datatables/French.json"         // Traduction en francais
+            },
+            destroy: true,
+            paging: true, // Pagination
+            pageLength: 9, // Nombre par pages
+            bFilter: true, // Barre de Recherche
+            ordering: false, // Autoriser le Sort.
+            lengthChange: false,
+            responsive: true,
+            info: true, // Information en bas de page
+            fixedHeader: true, // Fixation du Header
+            colReorder: false, // Reordonner les colonnes
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+
+            "ajax": {
+                "url": "{{ url_for('api.admin.getParam') }}",
+                "data": {
+                    "csrfToken": config.csrfToken
+                },
+                "dataSrc": function (json) {
+                    if (app.loadTable(json) == true) {
+                        return json.data;
+                    }
+                    // Verification de la reponse
+                    /*
+                    Si mauvaise reponse, 
+                        On arrete le loader
+                        On affiche un message
+                        On stop le traitement
+                    */
+                    return null;
+                },
+                error: function (xhr, error, code) {
+                    notify.error(xhr.responseJSON)
+                    app.stopLoader()
+                },
+                "type": "POST"
+            },
+            // -- ------------------ --
+            // -- EVENEMENT
+            // -- ------------------ --
+            "drawCallback": function (settings, json) {
+                $('#SpanTotalGlobale').html(settings.aiDisplay.length);
+            },
+            "initComplete": function (settings, json) {
+                $('#table').DataTable().buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');
+                $('#table thead').addClass('thead-dark');
+                finishload();
+            },
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+            "columns": [
+                { "title": "ID", "data": "id", index: 0 },
+                { "title": "CODE", "data": "code", index: 1 },
+                { "title": "LIBELLE", "data": "libelle", index: 2 },
+                { "title": "VALEUR", "data": "value", index: 3 },
+                { "title": "CREATION", "data": "created_at_utc", index: 4 },
+                { "title": "MODIFICATION", "data": "updated_at_utc", index: 5 },
+
+                
+
+                { "title": "ACTIONS", "data": null }
+
+            ],
+            "order": [[1, "desc"]],
+            "columnDefs": [
+                // -- Formatage du Champ ID
+                {"width": "2%", "type": "html", "targets": [0], "visible": false, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ CODE
+                {"width": "2%", "type": "html", "targets": [1], "visible": false, "searchable": true, className: 'text-left text-info font-weight-bold', defaultContent: ""},
+                // -- Formatage du Champ LIBELLE
+                {"width": "60%", "type": "html", "targets": [2], "visible": true, "searchable": true, className: 'text-left font-weight-bold', defaultContent: "" },
+                // -- Formatage du Champ VALEUR
+                {"width": "10%", "type": "html", "targets": [3], "visible": true, "searchable": false, className: 'text-center text-info font-weight-bold', defaultContent: ""},
+                // -- Formatage du Champ VALEUR
+                {"width": "10%", "type": "html", "targets": [4], "visible": false, "searchable": false, className: 'text-center', defaultContent: ""},
+                // -- Formatage du Champ VALEUR
+                {"width": "10%", "type": "html", "targets": [5], "visible": false, "searchable": false, className: 'text-center', defaultContent: ""},
+                // -- Formatage de la colonne ACTION
+                {
+                    "width": "5%", "targets": [-1], "data": null, className: 'text-center', render: function (data, type, row, meta) {
+                        return '<a class="btn btn-info btn-sm" onclick="action_edit_param(' + meta.row + ')" >' +
+                            '<span class="fas fa-key"></span>' +
+                            '</a>';
+                    }
+                }
+            ],
+        });
+    }
+    // =================================================================================
+    // Finalisation du Chargement
+    // =================================================================================
+    function finishload() {
+        // -- Filtrage des informations
+        yadcf.init(table, [
+            // Filtre sur SIGNAL
+            /*
+            {
+               column_number: 3, filter_reset_button_text: false, style_class: "custom-select",
+               filter_type: 'select',
+               data: [{
+                  value: ' ',
+                  label: 'Vides'
+               }],
+               append_data_to_table_data: 'before',
+               filter_match_mode: 'exact',
+               filter_default_label: "Tous"
+            },
+            */
+        ])
+
+
+        app.stopLoader()
+    }
+
+    
+
+</script>
+{% endblock %}

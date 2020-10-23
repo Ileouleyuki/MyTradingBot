@@ -6,9 +6,7 @@
 # Description : Routes pour les urls API lié à l'administration
 # Date de Creation : 06/05/2020
 ######################################################################################################
-import os
 import logging
-import pandas as pd
 # Flask
 from flask import Blueprint, request, abort
 # Perso
@@ -22,6 +20,7 @@ from core.Decorateur import login_required, roles_accepted, csrf_protect
 from models.AuthUsersModel import AuthUsersModel
 from models.LogWatcherModel import LogWatcherModel
 from models.LogActivityModel import LogActivityModel
+from models.ParamModel import ParamModel
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
@@ -212,5 +211,80 @@ def getActivityEntries():
         data = LogActivityModel().getAll()
         # Retour du message
         return Render.jsonTemplate(_OPERATION, 'Activité', categorie="SUCCESS", data=data.to_dict("Record"))
+    else:
+        abort(400)
+
+######################################################################################################
+# PARAMETRES
+######################################################################################################
+# ----------------------------------------------------------------------------------------------------
+# Chemin POST (XHR) pour renvoyer les parametres
+# Liste des Parametres
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_admin_bp.route('/getParam', methods=['POST'])
+@login_required
+@roles_accepted("ADMIN")
+@csrf_protect
+def getParam():
+    """Parse un fichier de log dans un DataFrame"""
+    if request.method == 'POST':
+        # Recuperation des infos
+        data = ParamModel().getAll().to_dict("Record")
+        # Cryptage des id
+        for item in data:
+            item["id"] = Crypt.encode(cfg._APP_SECRET_KEY, item["id"])
+        # Retour du message
+        return Render.jsonTemplate(_OPERATION, 'Parametres', categorie="SUCCESS", data=data)
+    else:
+        abort(400)
+
+
+@api_admin_bp.route('/updateParam', methods=['POST'])
+@login_required
+@roles_accepted("ADMIN")
+@csrf_protect
+def updateParam():
+    if request.method == 'POST':
+        # Recuperation + traitement des données du formulaire
+        data = Utils.parseForm(dict(request.form))
+        # Decryptage des id
+        data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
+        # Traitement en BDD
+        mdl = ParamModel()
+        try:
+            mdl.updateParam(data)
+        except SqliteAdapterException as errorSQL:
+            return Render.jsonTemplate(_OPERATION, 'Modification Utilisateur Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
+        else:
+            return Render.jsonTemplate(_OPERATION, 'Modification Utilisateur', categorie="SUCCESS")
+    else:
+        abort(400)
+# ----------------------------------------------------------------------------------------------------
+# Chemin POST (XHR) pour ajouter un Utlisateur
+# Ajouter un Utilisateur
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_admin_bp.route('/insertParam', methods=['POST'])
+@login_required
+@roles_accepted("ADMIN")
+@csrf_protect
+def insertParam():
+    if request.method == 'POST':
+        # Recuperation + traitement des données du formulaire
+        data = Utils.parseForm(dict(request.form))
+        print(data)
+        # Decryptage des id
+        # data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
+        # Traitement en BDD
+        mdl = ParamModel()
+        try:
+            mdl.insertParam(data)
+        except SqliteAdapterException as errorSQL:
+            return Render.jsonTemplate(_OPERATION, 'Ajout Utilisateur Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
+        else:
+            return Render.jsonTemplate(_OPERATION, 'Ajout Utilisateur', categorie="SUCCESS")
     else:
         abort(400)

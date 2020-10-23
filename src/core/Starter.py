@@ -32,7 +32,7 @@ from routes.admin.admin import admin_bp
 from routes.api.test.ApiTest import api_test_bp
 from routes.api.admin.ApiAdmin import api_admin_bp
 from routes.api.markets.ApiMarkets import api_markets_bp
-
+from routes.api.orders.ApiOrders import api_orders_bp
 
 loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
 loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
@@ -126,9 +126,7 @@ def register_blueprints(app):
     app.register_blueprint(api_test_bp, url_prefix='/test')
     app.register_blueprint(api_admin_bp, url_prefix='/admin')
     app.register_blueprint(api_markets_bp, url_prefix='/markets')
-
-    
-
+    app.register_blueprint(api_orders_bp, url_prefix='/orders')
 
 ######################################################################################################
 # ERRORS
@@ -216,6 +214,7 @@ def register_errorhandlers(app):
         """
         # Recuperation ERREUR et trace dans Activité
         exc_type, exc_value, exc_tb = sys.exc_info()
+        print(exc_value)
         loggerAct.exception(e)
         # Renvoi Erreur
         if request.path.startswith("/api/"):

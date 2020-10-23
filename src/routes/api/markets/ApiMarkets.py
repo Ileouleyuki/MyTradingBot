@@ -7,15 +7,13 @@
 # Date de Creation : 06/05/2020
 ######################################################################################################
 # Globales
-import time
 import logging
 # Flask
-from flask import Blueprint, Response, request, abort
+from flask import Blueprint, request, abort
 # Perso
 from core.Config import cfg
 # from core.Exceptions import AppException
 from core.Render import Render
-from core.Session import Session
 from core.Decorateur import csrf_protect, login_required
 from models.MarketsModel import MarketsModel
 

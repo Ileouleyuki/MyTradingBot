@@ -37,15 +37,17 @@ class AuthIpBlockedModel(SqliteAdapter):
         self.table = "mtb_auth_blocked_ip"
         # Creation de la table
         if not self.tblExists(table=self.table):
-            print("la table {} n'existe pas".format(self.table))
+            logger.info("Table {} inexistante >> Creation".format(self.table))
             query = initial_sql.format(TABLE=self.table)
-            ret = self.query(query)
-            print(ret)
+            self.query(query)
 
     ##################################################################################################
     # IP BLOCKED
     ##################################################################################################
     def isIpBlocked(self, userIP):
+        """
+        Determine si IP bloqué
+        """
         query = """ SELECT ip FROM {TABLE} WHERE ip ='{IP}' LIMIT 1;""".format(
             TABLE=self.table,
             IP=userIP
@@ -57,10 +59,12 @@ class AuthIpBlockedModel(SqliteAdapter):
             return True
 
     def blockIP(self, IP):
+        """
+        Ajouter adresse IP au blocage
+        """
         query = """ INSERT INTO {TABLE} (ip) VALUES ('{IP}')""".format(
             TABLE=self.table,
             IP=IP
         )
         ret = self.query(query)
-
         return ret

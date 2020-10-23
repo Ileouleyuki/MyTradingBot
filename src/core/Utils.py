@@ -7,6 +7,7 @@
 # Date de Creation : 18/03/2020
 ######################################################################################################
 # Globales
+import requests
 from random import randint
 import datetime
 
@@ -80,3 +81,37 @@ class Utils:
             return True
         # Si OK, on continue le traitement
         return False
+
+    # ------------------------------------------------------------------------------------------------
+    @staticmethod
+    def isConnected():
+        """
+        Retourne vrai si il y a une connection à Internet
+        """
+        timeout = 5  # 5s
+        try:
+            requests.get("https://query1.finance.yahoo.com", timeout=timeout)
+            return True
+        except (requests.ConnectionError, requests.Timeout):
+            return False
+
+    # ------------------------------------------------------------------------------------------------
+    @staticmethod
+    def formatSeconds(secs):
+        """
+        Convertir le temps donné (en secondes) dans un format lisible hh:mm:ss
+        """
+        mins, secs = divmod(secs, 60)
+        hours, mins = divmod(mins, 60)
+        days, hours = divmod(hours, 24)
+        # Formatage
+        lib = ""
+        if days > 0:
+            lib += '%02d jours ' % (days)
+        if hours > 0:
+            lib += '%02d hrs ' % (hours)
+        if mins > 0:
+            lib += '%02d mins ' % (mins)
+        if secs > 0:
+            lib += '%02d secs ' % (secs)
+        return lib

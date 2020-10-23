@@ -58,3 +58,16 @@ def watcher():
 def activity():
     # Rendu de la vue
     return Render.htmlTemplate("admin/activity.html", data=None)
+
+# ----------------------------------------------------------------------------------------------------
+# Chemin GET pour atteindre les parametres de l'application'
+# Affiche le template des parametres
+# ----------------------------------------------------------------------------------------------------
+
+
+@admin_bp.route('/param')
+@login_required
+@roles_accepted("ADMIN")
+def param():
+    # Rendu de la vue
+    return Render.htmlTemplate("admin/param.html", data=None)

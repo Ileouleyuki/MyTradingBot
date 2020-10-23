@@ -43,10 +43,9 @@ class AuthFailedLoginModel(SqliteAdapter):
         self.table = "mtb_auth_failed_login"
         # Creation de la table
         if not self.tblExists(table=self.table):
-            print("la table {} n'existe pas".format(self.table))
+            logger.info("Table {} inexistante >> Creation".format(self.table))
             query = initial_sql.format(TABLE=self.table)
-            ret = self.query(query)
-            print(ret)
+            self.query(query)
 
     ##################################################################################################
     # FAILED LOGIN

@@ -1,7 +1,7 @@
 [flake8]
 
 # Caractere max par ligne
-max-line-length = 150
+max-line-length = 250
 # Increase the verbosity of Flake8’s output.
 # verbose = 0
 # Decrease the verbosity of Flake8’s output.

@@ -2,31 +2,239 @@
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# STYLES #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
-{% block stylesheets %}{% endblock %}
+{% block stylesheets %}
+<!-- DataTables + YADCF Filters -->
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.css')}}" rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/css/buttons.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/css/fixedHeader.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/css/colReorder.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/css/rowGroup.bootstrap4.min.css')}} " rel="stylesheet">
+{% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# CORPS #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block content %}
     <div class="container-fluid mt-3">
-        <div class="jumbotron">
-            <h1 class="display-4">Orders</h1>
-            <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-            <hr class="my-4">
-            <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-          </div>
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-search-dollar"></i>&nbspHistorique&nbsp
+          <span id="SpanTotalGlobale" class="badge badge-dark">0</span></h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="btn-sync-orders"><i class="fas fa-sync fa-sm text-white-50"></i>&nbspSynchronisation</a>
+      </div>
+      <table id="table" class="table table-striped py-3" style="width:100%"></table>
     </div>
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# JAVASCRIPT #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block javascript %}
+<!-- JS - DataTables + YADCF (Filters) -->
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.js')}}"></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedColumns-3.3.0/js/fixedColumns.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/dataTables.buttons.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/JSZip-2.5.0/jszip.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/pdfmake.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/vfs_fonts.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.html5.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.print.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.colVis.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/js/dataTables.colReorder.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/js/dataTables.fixedHeader.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
+<script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
 <script>
     // =================================================================================
     // JAVASCRIPT
     // =================================================================================
     $(document).ready(function(){
-        setTimeout(app.stopLoader, config.timeout );
+        //setTimeout(app.stopLoader, config.timeout );
+        load_data_table()
     });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // Clique sur Synchronisation (PROGRESSION)
+    // =================================================================================
+    $("#btn-sync-orders").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajaxSSE.send("{{ url_for('api.orders.SyncOrders') }}", data, true)
+    });
+    // =================================================================================
+    // -- Refraichissement
+    // =================================================================================
+    function refresh() {
+        $('#table').DataTable().ajax.reload()
+    }    
+    // =================================================================================
+    // -- Chargement du Tableau
+    // =================================================================================
+    function load_data_table() {
+        table = $('#table').DataTable({
+            // -- ------------------ --
+            // -- PARAMETRE GENERAUX
+            // -- ------------------ --
+            "language": {
+                "url": "/static/assets/datatables/French.json"         // Traduction en francais
+            },
+            destroy: true,
+            paging: true, // Pagination
+            pageLength: 10, // Nombre par pages
+            bFilter: true, // Barre de Recherche
+            ordering: false, // Autoriser le Sort.
+            lengthChange: false,
+            responsive:true,
+            info: true, // Information en bas de page
+            fixedHeader: true, // Fixation du Header
+            colReorder: false, // Reordonner les colonnes
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+
+            "ajax": {
+                "url": "{{ url_for('api.orders.getAll') }}",
+                "data": {
+                    "csrfToken": config.csrfToken
+                },
+                "dataSrc": function (json) {
+                    if (app.loadTable(json) == true) {
+                        return json.data;
+                    }
+                    // Verification de la reponse
+                    /*
+                    Si mauvaise reponse, 
+                        On arrete le loader
+                        On affiche un message
+                        On stop le traitement
+                    */
+                    return null;
+                },
+                error: function (xhr, error, code) {
+                    notify.error(xhr.responseJSON)
+                    app.stopLoader()
+                },
+                "type": "POST"
+            },
+            // -- ------------------ --
+            // -- EVENEMENT
+            // -- ------------------ --
+            "drawCallback": function (settings, json) {
+                $('#SpanTotalGlobale').html(settings.aiDisplay.length);
+            },
+            "initComplete": function (settings, json) {
+                $('#table').DataTable().buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');
+                //$('#table thead').addClass('thead-dark');
+                finishload();
+            },
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+            //symbol,-- orders.order,open_time,close_time,-- delai,open_price,close_price,spread,timestamp,volume,sl,tp,margin_rate,commission,profit,-- type,storage,closed,comment,customComment
+            "columns": [
+                { "title": "ID", "data": "id", index: 0 },
+                { "title": "SYMBOL", "data": "symbol", index: 1 },
+                { "title": "OUVERTURE", "data": "open_time", index: 2 },
+                { "title": "FERMETURE", "data": "close_time", index: 3 },
+                { "title": "DELAI", "data": "delai", index: 4 },
+                { "title": "OPEN", "data": "open_price", index: 5 },
+                { "title": "SL", "data": "sl", index: 6 },
+                { "title": "TP", "data": "tp", index: 7 },
+                { "title": "CLOSE", "data": "close_price", index: 8 },
+                { "title": "SIZE", "data": "volume", index: 9 },
+                { "title": "COUT", "data": "commission", index: 10 },
+                { "title": "G/P", "data": "profit", index: 11 },
+                { "title": "COMMENTAIRES", "data": "comment", index: 12 }   
+                //{ "title": "ACTIONS", "data": null }
+
+            ],
+            "order": [[1, "desc"]],
+            "columnDefs": [
+                // -- Formatage du Champ ID
+                { "type": "html", "targets": [0], "visible": false, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ SYMBOL
+                {
+                    "type": "html", "targets": [1], "visible": true, "searchable": true, className: 'text-left text-info font-weight-bold', defaultContent: "",
+                },
+                // -- Formatage du Champ OUVERTURE
+                { "type": "html", "targets": [2], "visible": true, "searchable": true, className: 'text-center', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                        return formatDt.DateTimeBasicFormatter(data, type, row)
+                    }
+                },
+                // -- Formatage du Champ FERMETURE
+                {
+                    "type": "html", "targets": [3], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                        render: function (data, type, row, meta) {
+                            return formatDt.DateTimeBasicFormatter(data, type, row)
+                        }
+                },
+                // -- Formatage du Champ DELAI
+                { "type": "html", "targets": [4], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ OPEN
+                { "type": "html", "targets": [5], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                // -- Formatage du Champ SL
+                { "type": "html", "targets": [6], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                // -- Formatage du Champ TP
+                { "type": "html", "targets": [7], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                // -- Formatage du Champ CLOSE
+                { "type": "html", "targets": [8], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ SIZE
+                { "type": "html", "targets": [9], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ COUT
+                { "type": "html", "targets": [10], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ G/P
+                { "type": "html", "targets": [11], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ comment
+                { "type": "html", "targets": [12], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+
+                // -- Formatage du Champ customComment
+                { "type": "html", "targets": [13], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+
+                // -- Formatage de la colonne ACTION
+                /*
+                {
+                    "targets": [-1], "data": null, className: 'text-center', render: function (data, type, row, meta) {
+                        return '<a class="btn btn-danger btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous supprimer cette Utilisateur ?\', \'action_delete(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-trash-alt"></span>' +
+                            '</a>' +
+                            '<a class="btn btn-warning btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous envoyer un email à cette Utilisateur ?\', \'action_email(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-envelope"></span>' +
+                            '</a>' +
+                            '<a class="btn btn-info btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous debloquer le compte de cette utilisateur ?\', \'action_deblock(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-key"></span>' +
+                            '</a>';
+                    }
+                }
+                */
+            ],
+        });
+    }
+    // =================================================================================
+    // Finalisation du Chargement
+    // =================================================================================
+    function finishload() {
+        // -- Filtrage des informations
+        yadcf.init(table, [
+            // Filtre sur SIGNAL
+            /*
+            {
+               column_number: 3, filter_reset_button_text: false, style_class: "custom-select",
+               filter_type: 'select',
+               data: [{
+                  value: ' ',
+                  label: 'Vides'
+               }],
+               append_data_to_table_data: 'before',
+               filter_match_mode: 'exact',
+               filter_default_label: "Tous"
+            },
+            */
+        ])
+
+
+        app.stopLoader()
+    }
     
 </script>   
 {% endblock %}

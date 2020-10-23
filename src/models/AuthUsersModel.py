@@ -49,10 +49,11 @@ class AuthUsersModel(SqliteAdapter):
         self.table = "mtb_auth_users"
         # Creation de la table
         if not self.tblExists(table=self.table):
-            print("la table {} n'existe pas".format(self.table))
+            logger.info("Table {} inexistante >> Creation".format(self.table))
             query = initial_sql.format(TABLE=self.table)
             self.query(query)
             # Ajouter utilisateur par default
+            logger.info("Ajout utilisateur par default")
             self.insertUser(data={
                 'username': "admin",
                 'password': Crypt.encode(cfg._APP_SECRET_KEY, 'admin'),
