@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 ######################################################################################################
-# HELPERS ORDERS
+# HELPERS MARKETS
 ######################################################################################################
-# Description : Middleware pour synchro des Ordres
+# Description : Middleware pour synchro des Marchés
 # Auteur : ileouleyuki
 ######################################################################################################
 import sys
-import datetime
 import os
 import inspect
 # Ajout du repertoire au system pour facilter les import des modules
@@ -19,15 +18,15 @@ sys.path.append(os.path.dirname(__file__))
 
 
 from lib.xtb import XtbClient    # NOQA # isort:skip
-from models.OrdersModel import OrdersModel   # NOQA # isort:skip
+from models.MarketsModel import MarketsModel   # NOQA # isort:skip
 
 
 ######################################################################################################
-# Class SyncOrdersHelpers
+# Class SyncMarketsHelpers
 ######################################################################################################
 
 
-class SyncOrdersHelpers(object):
+class SyncMarketsHelpers(object):
 
     # ------------------------------------------------------------------------------------------------
     def __init__(self, account='DEMO'):
@@ -41,7 +40,7 @@ class SyncOrdersHelpers(object):
         # Initialisation des variables necessaires
         self._broker = None
         self._mdl = None
-        self._orders = None
+        self._markets = None
         pass
 
     # ------------------------------------------------------------------------------------------------
@@ -60,40 +59,22 @@ class SyncOrdersHelpers(object):
         pass
 
     # ------------------------------------------------------------------------------------------------
-    def getRange(self):
-        """
-        Determination de la fourchette de date
-        """
-        # Recuperation des ordres pour garde fou
-        self._end = datetime.datetime.utcnow() + datetime.timedelta(days=1)
-        start = "{ANNEE}-{MOIS}-{DAY}".format(
-            ANNEE=datetime.datetime.now().strftime("%Y"),
-            MOIS=int(datetime.datetime.now().strftime("%m")),
-            DAY=datetime.datetime.now().strftime("%d")
-        )
-        self._start = datetime.datetime.strptime(start, '%Y-%m-%d') - datetime.timedelta(days=7)
 
-        pass
-
-    # ------------------------------------------------------------------------------------------------
-    def getOrders(self):
+    def getMarkets(self):
         """
         Obtenir les Ordres
         """
-        self._orders = self._broker.getTradesHistory(
-            start=self._start.replace(hour=0, minute=0, second=0, microsecond=0).timestamp(),
-            end=self._end.replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-        )
-
+        self._markets = self._broker.get_all_markets().to_dict("Records")
     # ------------------------------------------------------------------------------------------------
+
     def updateBdd(self):
         """
         Mise à jour de la BDD
         """
         # Initialisation du modele
-        self._mdl = OrdersModel()
-        for row in self._orders:
-            self._mdl.upsert(record=row, account=self._accId, type=self._type)
+        self._mdl = MarketsModel()
+        for row in self._markets:
+            self._mdl.upsert(record=row)
         pass
 
     # ------------------------------------------------------------------------------------------------
@@ -109,10 +90,9 @@ class SyncOrdersHelpers(object):
 ######################################################################################################
 if __name__ == "__main__":
     print("DEBUT")
-    testObj = SyncOrdersHelpers()
+    testObj = SyncMarketsHelpers()
     testObj.connect()
-    testObj.getRange()
-    testObj.getOrders()
+    testObj.getMarkets()
     testObj.updateBdd()
     testObj.disconnect()
     print("FIN")
