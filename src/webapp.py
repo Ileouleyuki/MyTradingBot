@@ -7,6 +7,7 @@
 # Date de Creation : 20/05/2020
 ######################################################################################################
 # Globale
+import logging
 from core.Starter import create_app
 from core.Config import cfg
 
@@ -14,3 +15,5 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=cfg._ENV[cfg._ENVIRONNEMENT]["DEBUG_MODE"])
+    # app.run(debug=False)
+    logging.getLogger(cfg._LOG_ACTIVITY_NAME).info("Fermeture Application")

@@ -16,7 +16,7 @@
 -------------------------------------------------- */
 /* Not required for template or sticky footer method. */
 
-main > .container-fluid {
+  main > .container-fluid {
     padding: 60px 15px 0;
   }
   

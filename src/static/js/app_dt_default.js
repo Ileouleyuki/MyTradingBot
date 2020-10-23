@@ -22,7 +22,7 @@ $.extend(true, $.fn.dataTable.defaults, {
     /* -- --------- -- */
     /* -- GENERALES -- */
     /* -- --------- -- */
-   
+    
 
     "searching": true,
     "paging": false, // Pagination

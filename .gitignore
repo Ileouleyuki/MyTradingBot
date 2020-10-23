@@ -7,6 +7,7 @@ logs/*
 __pycache__/
 *.pyc
 log/
+*.db
 MyTradingBot.bat
 MyTradingBot.code-workspace
 activate.bat

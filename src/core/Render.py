@@ -34,7 +34,7 @@ class Render:
         info = {}
         # Utilisateur
         info["user"] = {
-            'is_logged_in': True,  # Session.getValue("is_logged_in"),
+            'is_logged_in': Session.getValue("is_logged_in"),
             'displayName': Session.getValue("displayName"),
             'role': Session.getValue("role"),
             'username': Session.getValue("username")

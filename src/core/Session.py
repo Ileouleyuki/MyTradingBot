@@ -20,24 +20,25 @@ from core.Utils import Utils
 
 
 class Session:
+
     def __init__():
         pass
 
     @staticmethod
-    def getIsLoggedIn():
-        return session["is_logged_in"] if 'is_logged_in' in session else False
+    def remove():
+        """
+        for key in session.keys():
+            session.pop(key)
+        """
+        session.clear()
 
     @staticmethod
-    def getUserId():
-        return session["username"] if 'username' in session else None
-
-    @staticmethod
-    def getUserRole():
-        return session["role"] if 'role' in session else None
-
-    @staticmethod
-    def getUserDisplay():
-        return session["displayName"] if 'displayName' in session else None
+    def getAndDestroy(key):
+        if key in session:
+            val = session[key]
+            del session[key]
+            return val
+        return None
 
     @staticmethod
     def getCsrfToken():
@@ -46,18 +47,6 @@ class Session:
     @staticmethod
     def getCsrfTokenTime():
         return session["csrfTokenTime"] if 'csrfTokenTime' in session else None
-
-    @staticmethod
-    def getWorkOnServeur():
-        return session["WorkOnServeur"] if 'WorkOnServeur' in session else None
-
-    @staticmethod
-    def getWorkOnDatabase():
-        return session["WorkOnDatabase"] if 'WorkOnDatabase' in session else None
-
-    @staticmethod
-    def getWorkOnSchema():
-        return session["WorkOnSchema"] if 'WorkOnSchema' in session else None
 
     @staticmethod
     def getPid():
@@ -76,23 +65,20 @@ class Session:
         return session[key] if key in session else None
 
     @staticmethod
-    def getAndDestroy(key):
-        if key in session:
-            val = session[key]
-            del session[key]
-            return val
-        return None
+    def getIsLoggedIn():
+        return session["is_logged_in"] if 'is_logged_in' in session else False
 
     @staticmethod
-    def isSessionValid(ip, userAgent):
-        """
-        Vérifie si les données de session existent et sont valides ou non.
-        """
-        pass
+    def getUserId():
+        return session["username"] if 'username' in session else None
 
-    # validateIPAddress
+    @staticmethod
+    def getUserRole():
+        return session["role"] if 'role' in session else None
 
-    # validateSessionExpiry
+    @staticmethod
+    def getUserDisplay():
+        return session["displayName"] if 'displayName' in session else None
 
     def generateCsrfToken():
         """
@@ -107,17 +93,3 @@ class Session:
             Session.setValue("csrfToken", token)
             Session.setValue("csrfTokenTime", time.time())
         return Session.getCsrfToken()
-
-    # reset
-
-    # updateSessionId
-
-    # remove
-    @staticmethod
-    def remove():
-        """
-
-        for key in session.keys():
-            session.pop(key)
-        """
-        session.clear()

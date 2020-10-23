@@ -14,3 +14,12 @@
 
 class AppException(Exception):
     """Classe d'exception de base pour toutes l'application"""
+
+
+######################################################################################################
+# Class SqliteAdapterException
+######################################################################################################
+
+
+class SqliteAdapterException(Exception):
+    """Classe d'exception de base pour toutes les erreurs SQLITE."""

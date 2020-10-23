@@ -17,8 +17,8 @@ class cfg():
     #   - ...
     # -------------------------------------------------------------------------
     # Informations
-    _APP_VERSION = "1.0.0"
-    _APP_NAME = "MyTradingBot"
+    _APP_VERSION = "1.1.0"
+    _APP_NAME = "Warren"
     _APP_VERSION_INFO__ = tuple([int(num) for num in _APP_VERSION.split('.')])
     _APP_AUTEUR = "DENIS Julien (Ileouleyuki)"
     # Variable determinant la config de l'environnement : PROD ou DEV
@@ -60,14 +60,23 @@ class cfg():
     # -------------------------------------------------------------------------
     # Parametres: LOGGING
     # -------------------------------------------------------------------------
-    # Parametres relatif au log applicatif :
+    # Parametres relatif au log applicatif, observateur et bot :
     # -------------------------------------------------------------------------
     # Parametres du journal de log (Activité)
-    LOG_ACTIVITY = True
-    LOG_ACTIVITY_FILE = _LOG_PATH + os.sep + "activity.log"
-    LOG_ACTIVITY_SIZE = 1024 * 1024 * 100  # 100Mo
-    LOG_ACTIVITY_ERROR_FILE = _LOG_PATH + os.sep + "errors.log"
-    LOG_ACTIVITY_ERROR_SIZE = 1024 * 1024 * 100  # 100Mo
+    _LOG_ACTIVITY = True
+    _LOG_ACTIVITY_BDD_PATH = _BDD_PATH
+    _LOG_ACTIVITY_TABLE = "mtb_log_activity"
+    _LOG_ACTIVITY_NAME = _APP_NAME + "Activity"
+    # Parametres du journal de log (Observateur)
+    _LOG_WATCHER = True
+    _LOG_WATCHER_BDD_PATH = _BDD_PATH
+    _LOG_WATCHER_TABLE = "mtb_log_watcher"
+    _LOG_WATCHER_NAME = _APP_NAME + "Watcher"
+    # Parametres du journal de log (Observateur)
+    _LOG_BOT = True
+    _LOG_BOT_BDD_PATH = _ROOT_DIR + os.sep + "data" + os.sep + "bot.db"
+    _LOG_BOT_TABLE = "mtb_log_bot"
+    _LOG_BOT_NAME = _APP_NAME + "Bot"
 
     # -------------------------------------------------------------------------
     # Configuration : DEVELOPPEMENT

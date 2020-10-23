@@ -7,12 +7,9 @@
 # Date de Creation : 06/05/2020
 ######################################################################################################
 
-import os
-import sys
-import inspect
-
 # Globales
 import time
+import logging
 # Flask
 from flask import Blueprint, Response
 # Perso
@@ -20,15 +17,11 @@ from core.Config import cfg
 # from core.Exceptions import AppException
 from core.Render import Render
 from core.Session import Session
-from core.Logger import Logger
 from core.Decorateur import csrf_protect   # login_required
 
-# Ajout du repertoire parent pour import
-current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
+
 # Logger
-logger = Logger()
+logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
 
 ######################################################################################################
@@ -87,7 +80,6 @@ def testJSONProgress():
                 #     raise Exception("NOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNN")
             yield Render.sseTemplate(perc=100, message="Fin de traitement", operation="WOO HOO", categorie="SUCCESS")
         except Exception as error:
-            logger = Logger()
             logger.pid = pid
             logger.user = user
             logger.error('{APP_NAME} à rencontré une erreur (TRAITEMENT)'.format(APP_NAME=cfg._APP_NAME))
