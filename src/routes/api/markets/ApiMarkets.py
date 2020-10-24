@@ -7,15 +7,18 @@
 # Date de Creation : 06/05/2020
 ######################################################################################################
 # Globales
+import time
 import logging
 # Flask
-from flask import Blueprint, request, abort
+from flask import Blueprint, request, abort, Response
 # Perso
+from core.Session import Session
 from core.Config import cfg
 # from core.Exceptions import AppException
 from core.Render import Render
 from core.Decorateur import csrf_protect, login_required
 from models.MarketsModel import MarketsModel
+from middleware.SyncMarketsHelpers import SyncMarketsHelpers
 
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
@@ -45,6 +48,48 @@ def getAll():
         # Recuperation des infos
         data = MarketsModel().getAll()
         # Retour du message
-        return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data.to_dict("Record"))
+        return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data.to_dict("records"))
     else:
         abort(400)
+# ----------------------------------------------------------------------------------------------------
+# Chemin pour Synchroniser les Marchés chez le Broker
+# Page Racine du Site
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_markets_bp.route('/SyncMarkets', methods=['POST'])
+@login_required
+@csrf_protect
+def SyncMarkets():
+    def run(user):
+        # Initialisation des Parametres + Variables
+        _OPERATION = "Synchronisation des Marchés"
+        logger.info("Lancement de la Synchronisation des Marchés par : {}".format(user))
+        SyncMarketsHelpersObj = None
+        try:
+            # ========================================================================================
+            yield Render.sseTemplate(perc=1, message="Demarrage de la synchronisation des Marchés", operation=_OPERATION, categorie="NORMAL")
+            SyncMarketsHelpersObj = SyncMarketsHelpers()
+            # Initialisation du Broker
+            yield Render.sseTemplate(perc=25, message="Connexion au Broker", operation=_OPERATION, categorie="TITLE")
+            SyncMarketsHelpersObj.connect()
+            # Obtenir les Marchés
+            yield Render.sseTemplate(perc=50, message="Recuperation des Marchés", operation=_OPERATION, categorie="TITLE")
+            SyncMarketsHelpersObj.getMarkets()
+            # Mise à jour dela BDD
+            yield Render.sseTemplate(perc=75, message="Mise à jour de la BDD (Traitement Long)", operation=_OPERATION, categorie="TITLE")
+            SyncMarketsHelpersObj.updateBdd()
+            # Fin de Traitement
+            SyncMarketsHelpersObj.disconnect()
+            yield Render.sseTemplate(perc=100, message="Fin de Syncronisation des Ordres", operation=_OPERATION, categorie="SUCCESS")
+        except Exception as error:
+            logger.exception(error)
+            yield Render.sseTemplate(perc=100, message=str(error), operation=_OPERATION, categorie="ERROR")
+        finally:
+            time.sleep(0.2)
+
+    # return Render.jsonTemplate(_OPERATION, "ESSAI", categorie="WARNING", data=None)
+    # raise Exception("NOOOOOOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNN")
+    # Session.setPid()
+
+    return Response(run(user=Session.getUserDisplay()), mimetype='text/event-stream')

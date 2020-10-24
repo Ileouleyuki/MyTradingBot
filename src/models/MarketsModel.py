@@ -17,7 +17,7 @@ logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 # Requetes SQL
 ######################################################################################################
 initial_sql = """CREATE TABLE IF NOT EXISTS {TABLE}(
-                "id" INTEGER PRIMARY KEY AUTOINCREMENT="\"" + str(record["symbol"]) + "\"" if "symbol" in record and record["symbol"] is not None else 'NULL',
+                "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                     "symbol"	TEXT,
                     "currency"	TEXT,
                     "categoryName"	TEXT,

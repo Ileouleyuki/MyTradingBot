@@ -42,10 +42,10 @@ $.extend(true, $.fn.dataTable.defaults, {
             titleAttr: "Rafraichir les informations",
             className: 'btn btn-default',
             action: function (e, dt, node, config) {
-                load('body', 'show');
+                app.startLoader('body')
                 //$('#table').DataTable().ajax.reload();
                 dt.ajax.reload();
-                load('body', 'hidden');
+                app.stopLoader('body')
                 //window.location.reload(true);
             }
         },

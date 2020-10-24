@@ -48,13 +48,13 @@ def getUsers():
     """Recuperation des Utilisateurs"""
     if request.method == 'POST':
         # Recuperation des infos
-        data = AuthUsersModel().getAllUsers()
-        # Decryptage des mots des passe + Cryptage des id
-        for item in data:
-            item["password"] = Crypt.decode(cfg._APP_SECRET_KEY, item["password"])
-            item["id"] = Crypt.encode(cfg._APP_SECRET_KEY, item["id"])
+        df = AuthUsersModel().getAllUsers()
+        # Decryptage des mots des passe
+        df["password"] = df.apply(lambda x: Crypt.decode(cfg._APP_SECRET_KEY, x['password']), axis=1)
+        # Cryptage des id
+        df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
         # Renvoi de la reponse JSON
-        return Render.jsonTemplate(_OPERATION, 'Chargement des Utilisateurs', categorie="SUCCESS", data=data)
+        return Render.jsonTemplate(_OPERATION, 'Liste des Utilisateurs', categorie="SUCCESS", data=df.to_dict('Records'))
     else:
         abort(400)
 
@@ -231,12 +231,11 @@ def getParam():
     """Parse un fichier de log dans un DataFrame"""
     if request.method == 'POST':
         # Recuperation des infos
-        data = ParamModel().getAll().to_dict("Record")
+        df = ParamModel().getAll()
         # Cryptage des id
-        for item in data:
-            item["id"] = Crypt.encode(cfg._APP_SECRET_KEY, item["id"])
+        df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
         # Retour du message
-        return Render.jsonTemplate(_OPERATION, 'Parametres', categorie="SUCCESS", data=data)
+        return Render.jsonTemplate(_OPERATION, 'Parametres', categorie="SUCCESS", data=df.to_dict("Records"))
     else:
         abort(400)
 
@@ -256,9 +255,9 @@ def updateParam():
         try:
             mdl.updateParam(data)
         except SqliteAdapterException as errorSQL:
-            return Render.jsonTemplate(_OPERATION, 'Modification Utilisateur Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
+            return Render.jsonTemplate(_OPERATION, 'Modification Parametre Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
         else:
-            return Render.jsonTemplate(_OPERATION, 'Modification Utilisateur', categorie="SUCCESS")
+            return Render.jsonTemplate(_OPERATION, 'Modification Parametre', categorie="SUCCESS")
     else:
         abort(400)
 # ----------------------------------------------------------------------------------------------------
@@ -283,8 +282,8 @@ def insertParam():
         try:
             mdl.insertParam(data)
         except SqliteAdapterException as errorSQL:
-            return Render.jsonTemplate(_OPERATION, 'Ajout Utilisateur Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
+            return Render.jsonTemplate(_OPERATION, 'Ajout Parametre Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
         else:
-            return Render.jsonTemplate(_OPERATION, 'Ajout Utilisateur', categorie="SUCCESS")
+            return Render.jsonTemplate(_OPERATION, 'Ajout Parametre', categorie="SUCCESS")
     else:
         abort(400)

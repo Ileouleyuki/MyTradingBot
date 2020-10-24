@@ -8,9 +8,24 @@
 # Version : V1
 # Date de Creation : 18/03/2020
 ######################################################################################################
+import os
+import json
+from pathlib import Path
 import logging
+
+"""
+import sys
+import inspect
+# Ajout du repertoire au system pour facilter les import des modules
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, current_dir)
+sys.path.insert(0, parent_dir)
+sys.path.append(os.path.dirname(__file__))
+"""
 from lib.sqliteadapter import SqliteAdapter
 from core.Config import cfg
+
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 ######################################################################################################
@@ -46,6 +61,9 @@ class ParamModel(SqliteAdapter):
             logger.info("Table {} inexistante >> Creation".format(self.table))
             query = initial_sql.format(TABLE=self.table)
             self.query(query)
+            logger.info('Integration des parametres par default')
+            path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")) + os.sep + 'install' + os.sep + 'param.sql'
+            self.queryFile(path, param={'table': self.table})
 
     ##################################################################################################
     # ENTRIES
@@ -60,43 +78,80 @@ class ParamModel(SqliteAdapter):
         df = self.getToDataFrame(query, Limit)
         return df
 
+    def getParam(self, code):
+        """
+        Retourne la valeur du parametre defini par son code
+        """
+        query = """SELECT code, value from {TABLE} where code = "{CODE}" """.format(
+                TABLE=self.table,
+                CODE=code
+            )
+        # Execution
+        ret = self.get(query)
+        # Retour
+        if ret is not None:
+            return ret['value']
+        return ret
+
+    def getBotConfig(self):
+        """
+        Retourne la Config pour le Bot
+        """
+        query = """SELECT code, value from {TABLE} """.format(TABLE=self.table)
+        # Recuperation Config en BDD
+        config = self.getToDataFrame(query).to_dict('Records')
+        # Conversion en dictionnaire : key : code et value : value
+        ConfigDict = {}
+        for element in config:
+            ConfigDict[element['code']] = element['value']
+        # Recuperation des identifiants
+        credentials = self.getCredentials()
+        # Concatenation des 2 Dict
+        return {**ConfigDict, **credentials}
+
+    def getCredentials(self):
+        """
+        Obtenir les Identifiants de Compte
+        """
+        ret = None
+        # Determination du path
+        path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..")) + os.sep + 'data' + os.sep + 'xtb.json'
+        # Verification existance du Fichier
+        if not os.path.isfile(path):
+            logger.error("Le fichier de Configuration n'existe pas : {}".format(path))
+            return ret
+        with Path(path).open(mode="r") as f:
+            ret = json.load(f)
+        return ret
+
     def updateParam(self, data):
         # Construction de la requete
-        query = """UPDATE {TABLE} SET """.format(TABLE=self.table)
-        fields = list()
-        for key, value in data.items():
-            if key.lower() == "id":
-                continue
-            if key.lower() == "csrftoken":
-                continue
-            if value is None or len(value) == 0:
-                continue
-            fields.append("{FIELD} = '{VALUE}' ".format(FIELD=key, VALUE=value))
-
-        # Jointure de la chaine de caractere
-        query += ", ".join(map(str, fields))
-        # Ajout de la condition de mise à jour
-        query += " WHERE id = {ID}".format(ID=data["id"])
+        sql = self.updateQuery(table=self.table, data=data)
         # Execution
-        ret = self.query(query)
+        ret = self.query(sql)
         return ret
 
     def insertParam(self, data):
-        # Extraction col and values
-        values = list()
-        columns = list()
-        for key, value in data.items():
-            if key.lower() == "csrftoken":
-                continue
-            if value is None or len(value) == 0:
-                continue
-            columns.append(key)
-            values.append(value)
-
-        cols = '( ' + ', '.join(map(str, columns)) + ' )'
-        values = '( "' + '", "'.join(map(str, values)) + '" )'
         # Construction de la requete
-        query = "INSERT INTO {TABLE} {columns} values {values};".format(TABLE=self.table, columns=cols, values=values)
+        sql = self.insertQuery(table=self.table, data=data)
         # Execution
-        ret = self.query(query)
+        ret = self.query(sql)
         return ret
+
+######################################################################################################
+# TEST
+######################################################################################################
+
+
+if __name__ == "__main__":
+    print("DEBUT")
+    testObj = ParamModel()
+
+    ret = testObj.getParam('time_zone')
+    print(ret)
+
+    ret = testObj.getCredentials()
+    print(ret)
+
+    ret = testObj.getBotConfig()
+    print(ret)

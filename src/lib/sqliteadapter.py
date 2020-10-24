@@ -180,14 +180,81 @@ class SqliteAdapter:
 
     # -----------------------------------------------------------------------------------------------
 
-    def is_unique(self, table, field, value):
-        """
-        Verifie si la valeur est deja presente
-        """
-        sql = """SELECT COUNT(*) as "TOTAL" FROM {TABLE} WHERE {FIELD}='{VALUE}'""".format(TABLE=table, FIELD=field, VALUE=value)
-        ret = self.getToDataFrame(sql).to_dict("Record")
-        return False if int(ret[0]["TOTAL"]) > 0 else True
+    def updateQuery(self, table, data):
+        # Construction de la requete
+        query = """UPDATE {TABLE} SET """.format(TABLE=table)
+        fields = list()
+        for key, value in data.items():
+            if key.lower() == "id":
+                continue
+            if key.lower() == "csrftoken":
+                continue
+            if value is None or len(value) == 0:
+                continue
+            fields.append("""{FIELD} = "{VALUE}" """.format(FIELD=key, VALUE=value))
 
+        # Jointure de la chaine de caractere
+        query += ", ".join(map(str, fields))
+        # Ajout de la condition de mise à jour
+        query += " WHERE id = {ID}".format(ID=data["id"])
+        return query
+
+    # -----------------------------------------------------------------------------------------------
+
+    def insertQuery(self, table, data):
+        # Extraction col and values
+        values = list()
+        columns = list()
+        for key, value in data.items():
+            if key.lower() == "csrftoken":
+                continue
+            if value is None or len(value) == 0:
+                continue
+            columns.append(key)
+            values.append(value)
+
+        cols = '( ' + ', '.join(map(str, columns)) + ' )'
+        values = '( "' + '", "'.join(map(str, values)) + '" )'
+        # Construction de la requete
+        query = "INSERT INTO {TABLE} {columns} values {values};".format(TABLE=table, columns=cols, values=values)
+        return query
+
+    # -----------------------------------------------------------------------------------------------
+
+    def queryFile(self, sqlFileNamePath, param={}):
+        """Execution d'un fichier SQL """
+        # Verification du presence du Script
+        if os.path.exists(sqlFileNamePath) is False:
+            raise SqliteAdapterException("Le Fichier de Script SQL n'existe pas : {}".format(sqlFileNamePath))
+        # Lecture du Script
+        with open(sqlFileNamePath, "rb") as f:
+            sqlContent = f.read().decode('UTF-8')
+
+        # Parametrage du Script
+        if len(param) == 0:
+            raise SqliteAdapterException("Le dictionnaire des parametres est vide : {}".format(sqlFileNamePath))
+        for key in param.keys():
+            sqlContent = sqlContent.replace(str("$" + key), str(param[key]))
+        # [DEBUG] - Sauvagrde du Script modifié
+        """
+        if logger.level == logging.DEBUG:
+            logger.debug("Sauvegarde du Script SQL modifié")
+            path_debug = cfg._ROOT_DIR + os.sep + \
+                "tmp" + os.sep + \
+                datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            if pid is not None:
+                path_debug += "-" + str(pid) + "-"
+            path_debug += os.path.basename(sqlFileNamePath)
+            with open(path_debug, "wb") as text_file:
+                text_file.write(sqlContent.encode("UTF-8"))
+        """
+
+        # Execution de la requete
+        try:
+            self.open()  # On ouvre
+            self.cursor.executescript(sqlContent)  # On execute
+        except Exception as err:
+            raise SqliteAdapterException("[SQLITE] - Échec Fichier SQL : \n{}\nERREUR : {}".format(sqlContent, str(err)))
     """
     ## -------------------------------------------------------------------------------------------------------------------------------
     ## Requete de selection sur la BDD mais retourne 1 resultat

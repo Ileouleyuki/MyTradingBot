@@ -47,7 +47,7 @@ insertion_sql = """INSERT INTO {TABLE}(
                     '%(name)s',
                     %(levelno)d,
                     '%(levelname)s',
-                    '%(msg)s',
+                    "%(msg)s",
                     '%(args)s',
                     '%(module)s',
                     '%(funcName)s',
@@ -83,6 +83,7 @@ class SQLiteHandler(logging.Handler):
     def emit(self, record):
         self.format(record)
         # self.format_time(record)
+        print(record.msg)
         if record.exc_info:  # Pour exceptions
             record.exc_text = logging._defaultFormatter.formatException(record.exc_info)
             record.exc_text = record.exc_text.replace("'", '"')  # Remplacement des quotes provoqaunt une erreur

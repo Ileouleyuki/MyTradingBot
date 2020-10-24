@@ -59,7 +59,7 @@
         // -- Creation d'un FormData vide
         var data = {};
         // -- Lancement du traitement (Pas de modal)
-        ajaxSSE.send("{{ url_for('api.orders.SyncOrders') }}", data, true)
+        ajaxSSE.send("{{ url_for('api.orders.SyncOrders') }}", data, 'refresh()')
     });
     // =================================================================================
     // -- Refraichissement

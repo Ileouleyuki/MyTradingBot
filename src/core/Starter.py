@@ -33,6 +33,7 @@ from routes.api.test.ApiTest import api_test_bp
 from routes.api.admin.ApiAdmin import api_admin_bp
 from routes.api.markets.ApiMarkets import api_markets_bp
 from routes.api.orders.ApiOrders import api_orders_bp
+from routes.api.dashboard.ApiDashBoard import api_dashboard_bp
 
 loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
 loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
@@ -127,6 +128,7 @@ def register_blueprints(app):
     app.register_blueprint(api_admin_bp, url_prefix='/admin')
     app.register_blueprint(api_markets_bp, url_prefix='/markets')
     app.register_blueprint(api_orders_bp, url_prefix='/orders')
+    app.register_blueprint(api_dashboard_bp, url_prefix='/dashboard')
 
 ######################################################################################################
 # ERRORS
@@ -217,7 +219,7 @@ def register_errorhandlers(app):
         print(exc_value)
         loggerAct.exception(e)
         # Renvoi Erreur
-        if request.path.startswith("/api/"):
+        if Utils.isAjaxRequest(request) is True:
             return Render.jsonTemplate(
                 operation='OOPS !! Une erreur est arrivé',
                 message='{MESSAGE}'.format(MESSAGE=exc_value),

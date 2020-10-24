@@ -110,7 +110,7 @@ var app = {
     * Verification des infos triplet
     * 
     */
-    verifTriplet: function () {
+    verifTriplet: function (checkSchema=true) {
         // -- Verification si selection serveur est null
         if ( $("#serveur").val().trim().length == 0){
             notify.warning({"mess":"Veuillez selectionner un Serveur de Travail", "oper": "Choix Triplet"})
@@ -121,10 +121,12 @@ var app = {
             notify.warning({"mess":"Veuillez selectionner une base de donnée de Travail", "oper": "Choix Triplet"})
             return false
         }
-        // -- Verification si selection serveur est null
-        if ( $("#schema").val().trim().length == 0){
-            notify.warning({"mess":"Veuillez selectionner un Schema de Travail", "oper": "Choix Triplet"})
-            return false
+        if(checkSchema == true){ 
+            // -- Verification si selection serveur est null
+            if ( $("#schema").val().trim().length == 0){
+                notify.warning({"mess":"Veuillez selectionner un Schema de Travail", "oper": "Choix Triplet"})
+                return false
+            }
         }
         return true
 
@@ -189,6 +191,9 @@ var notify = {
      * @param {*} MESSAGE 
      */
     success: function (data) {
+        if (data.silent == true){
+            return
+        }
         // -- Affichage de la Notification
         $.notify({
             // options
@@ -318,6 +323,28 @@ var notify = {
 // =============================================================================================
 var formatDt = {
     /**
+     * Formatage d'une taille de base de donnée
+     * 
+     * @param {*} data la donnée à travailler
+     * @param {*} type Le type de filtrage
+     * @param {*} row  Toutes les infos pour comparer
+     * 
+     */
+    hmzSize: function (data, type, row) {
+
+        if (type === 'display' || type === 'filter') {
+            var thresh = 1 ? 1000 : 1024;
+            if(data < thresh) return data + ' B';
+            var units = 1 ? ['kB','MB','GB','TB','PB','EB','ZB','YB'] : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+            var u = -1;
+            do {
+                data /= thresh;
+                ++u;
+            } while(data >= thresh);
+            return data.toFixed(1)+' '+units[u];
+        }
+    },
+    /**
      * Formatage d'une données Boolean
      * 
      * @param {*} data la donnée à travailler
@@ -340,7 +367,29 @@ var formatDt = {
                     return '<span class="fa fa-check text-success"></span><span style="visibility:hidden">' + data + '</span>'; //+ value;
                     //return  value;
                     break;
-
+                
+                case '9':
+                        //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                        return '<span class="fas fa-crown text-warning"></span><span style="visibility:hidden">' + data + '</span>'; //+ value;
+                        //return  value;
+                        break;
+                
+                case 0:
+                        //<span id="firstnameInvalid" style="color:red; visibility:hidden">
+                        //return '<span class="fas fa-check text-success"></span><span style="visibility:hidden">'+value+'</span>  '; //+ value;
+                        return '<span class="fa fa-times text-danger"></span><span style="visibility:hidden">' + data + '</span>'; //+ value;
+                        //return  value;
+                        break;
+                case 1:
+                        //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                        return '<span class="fa fa-check text-success"></span><span style="visibility:hidden">' + data + '</span>'; //+ value;
+                        //return  value;
+                        break;
+                case 9:
+                        //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                        return '<span class="fas fa-crown text-warning"></span><span style="visibility:hidden">' + data + '</span>'; //+ value;
+                        //return  value;
+                        break;
                 case 'N':
                     //<span id="firstnameInvalid" style="color:red; visibility:hidden">
                     //return '<span class="fas fa-check text-success"></span><span style="visibility:hidden">'+value+'</span>  '; //+ value;
@@ -367,6 +416,23 @@ var formatDt = {
                     break;
                 default:
                     return data;
+            }
+        }
+    },
+    /**
+     * Formatage d'une données Boolean
+     * 
+     * @param {*} data la donnée à travailler
+     * @param {*} type Le type de filtrage
+     * @param {*} row  Toutes les infos pour comparer
+     * 
+     */
+    isEmptyToBool: function (data, type, row) {
+        if (type === 'display' || type === 'filter') {
+            if(data == null || data.length == 0){
+                return '<span class="fa fa-check text-danger"></span><span style="visibility:hidden">false</span>'; //+ value;
+            }else{
+                return '<span class="fa fa-check text-success"></span><span style="visibility:hidden">true</span>'; //+ value;
             }
         }
     },
@@ -409,12 +475,38 @@ var formatDt = {
      */
     DateTimeBasicFormatter: function (data, type, row) {
         if (type === 'display' || type === 'filter') {
-            if (!moment(data, "YYYY-MM-DD").isValid()) {
+            if (!moment(data, "YYYY-MM-DD").isValid() || !moment(data, "YYYY-MM-DD hh:mm:ss").isValid() ) {
                 return data;
             }
+            
             var DATE_VAL = moment(data, "YYYY-MM-DD hh:mm:ss.SSS");
             //console.log("DIFFERENCE >> " + moment().diff(DATE_VAL, 'days'));
             return DATE_VAL.format("DD/MM/YYYY HH:mm:ss");
+
+        }
+        // Otherwise the data type requested (`type`) is type detection or
+        // sorting value, for which we want to use the integer, so just return
+        // that, unaltered
+        return data;
+    },
+    /**
+     * Formatage classique d'un DATETIME
+     * 
+     * @param {*} data la donnée à travailler
+     * @param {*} type Le type de filtrage
+     * @param {*} row  Toutes les infos pour comparer
+     * 
+     */
+    DateTimeFullFormatter: function (data, type, row) {
+        if (type === 'display' || type === 'filter') {
+            console.log(data)
+            if (!moment(data, "YYYY-MM-DD").isValid() || !moment(data, "YYYY-MM-DD hh:mm:ss").isValid() ) {
+                return data;
+            }
+            
+            var DATE_VAL = moment(data, "YYYY-MM-DD hh:mm:ss.SSS");
+            //console.log("DIFFERENCE >> " + moment().diff(DATE_VAL, 'days'));
+            return DATE_VAL.format("ddd Do MMM YYYY HH:mm:ss");
 
         }
         // Otherwise the data type requested (`type`) is type detection or
@@ -435,6 +527,7 @@ var formatDt = {
             if (!moment(data).isValid()) {
                 return data;
             }
+            
             var DATE_VAL = moment(data * 1000);
             //console.log("DIFFERENCE >> " + moment().diff(DATE_VAL, 'days'));
             return DATE_VAL.format("DD/MM/YYYY HH:mm:ss");
@@ -445,126 +538,106 @@ var formatDt = {
         return data;
     },
     /**
-     * Formatage classique d'une Duree en secondes
+     * Formatage classique d'un dela par rapport à la date du jour
      * 
      * @param {*} data la donnée à travailler
      * @param {*} type Le type de filtrage
      * @param {*} row  Toutes les infos pour comparer
      * 
      */
-    DurationBasicFormatter: function (data, type, row) {
+    CalcDelaiFormatter: function (data, type, row) {
         if (type === 'display' || type === 'filter') {
-            var DATE_VAL = moment(data * 1000);
-            //console.log("DIFFERENCE >> " + moment().diff(DATE_VAL, 'days'));
-            return moment.utc(data * 1000).format('DD:HH:mm:ss');
+            console.log(data)
+            if (!moment(data, "YYYY-MM-DD").isValid() || !moment(data, "YYYY-MM-DD hh:mm:ss").isValid() ) {
+                return data;
+            }
+            var DATE_VAL = moment(data, "YYYY-MM-DD hh:mm:ss");
+            return '<strong>' + moment(moment().diff(DATE_VAL)).format('D') + '</strong> Jour(s) <strong>' + moment(moment().diff(DATE_VAL)).format('H') + '</strong> Heure(s)'
         }
         // Otherwise the data type requested (`type`) is type detection or
         // sorting value, for which we want to use the integer, so just return
         // that, unaltered
         return data;
     },
-        /**
-     * Formatage classique d'un TIMESTAMP
+
+    /**
+     * Formatage classique des types de Tables
      * 
      * @param {*} data la donnée à travailler
      * @param {*} type Le type de filtrage
      * @param {*} row  Toutes les infos pour comparer
      * 
      */
-    ActionBasicFormatter: function (data, type, row) {
+    TypeTableFormatter: function (data, type, row) {
         if (type === 'display' || type === 'filter') {
             switch (data) {
-                case 'ACHAT':
-                    return '<span class="badge badge-pill badge-success">ACHAT</span>';
+                case 'PCN':
+                    //<span id="firstnameInvalid" style="color:red; visibility:hidden">
+                    //return '<span class="fas fa-check text-success"></span><span style="visibility:hidden">'+value+'</span>  '; //+ value;
+                    //return '<span class="fa fa-times text-danger"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    //return '<span class="badge badge-danger"><span style="visibility:display">'+data+'</span></span>'
+                    return '<span class="badge badge-pill badge-danger">PCN</span>';
+                    //return  value;
                     break;
-                case 'VENTE':
-                    return '<span class="badge badge-pill badge-primary">VENTE</span>';
+                case 'GRACETHD':
+                    //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                    //return '<span class="fa fa-circle-info text-info"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    //return '<span class="badge badge-info"><span style="visibility:display">'+data+'</span></span>'
+                    return '<span class="badge badge-pill badge-info">GRACETHD</span>';
+                    //return  value;
                     break;
-                case 'BUY':
-                    return '<span class="badge badge-pill badge-success">ACHAT</span>';
+                case 'AUTRES':
+                    //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                    //return '<span class="fa fa-circle-info text-info"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    //return '<span class="badge badge-warning"><span style="visibility:display">'+data+'</span></span>'
+                    return '<span class="badge badge-pill badge-warning">AUTRES</span>';
+                    //return  value;
                     break;
-                case 'SELL':
-                    return '<span class="badge badge-pill badge-primary">VENTE</span>';
-                    break;
-                case null:
-                    return data;
+                case 'TEMP':
+                    //return '<span class="glyphicon glyphicon-ok" style="color:limegreen"</span><span style="visibility:hidden">'+value+'</span> '; //+ value;
+                    //return '<span class="fa fa-circle-info text-info"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    //return '<span class="badge badge-warning"><span style="visibility:display">'+data+'</span></span>'
+                    return '<span class="badge badge-pill badge-secondary">TEMP</span>';
+                    //return  value;
                     break;
                 default:
-                    return '<span class="badge badge-pill badge-warning">' + data + '</span>';
-            }
+                    return data;
         }
         // Otherwise the data type requested (`type`) is type detection or
         // sorting value, for which we want to use the integer, so just return
         // that, unaltered
         return data;
-    },
-    // =================================================================================
-    // Formattage du TAKEPROFIT
-    // =================================================================================
-    TakeProfitFormatter: function (data, type, row) {
-        if ( type === 'display' || type === 'filter' ) {
-            // <span class="badge badge-pill badge-success">MAD</span>'
-        
-            nClose = parseFloat(row['Close_Price']);
-            if(isNaN(nClose))
-            return data
-            nTP = parseFloat(row['TP']);
-            if(isNaN(nTP))
-            return data
-            if(nClose === nTP){
-            return '<span class="text-success font-weight-bold">' + nTP + '</span>';
-            }
-            return nTP
         }
-        // Otherwise the data type requested (`type`) is type detection or
-        // sorting value, for which we want to use the integer, so just return
-        // that, unaltered
-        return data;
-    
     },
-    // =================================================================================
-    // Formattage du STOPLOSS
-    // =================================================================================
-    StopLossFormatter: function (data, type, row) {
-        if ( type === 'display' || type === 'filter' ) {
-            // <span class="badge badge-pill badge-success">MAD</span>'
-        
-            nClose = parseFloat(row['Close_Price']);
-            if(isNaN(nClose))
-            return data
-            nSL = parseFloat(row['SL']);
-            if(isNaN(nSL))
-            return data
-            if(nClose === nSL){
-            return '<span class="text-primary font-weight-bold">' + nSL + '</span>';
+    /**
+     * Formatage des Noms De Serveurs
+     * 
+     * @param {*} data la donnée à travailler
+     * @param {*} type Le type de filtrage
+     * @param {*} row  Toutes les infos pour comparer
+     * 
+     */
+    ServerNameFormatter: function (data, type, row) {
+        if (type === 'display' || type === 'filter') {
+            switch (data) {
+                case 'PROD_PROD_FCA':
+                    //<span id="firstnameInvalid" style="color:red; visibility:hidden">
+                    //return '<span class="fas fa-check text-success"></span><span style="visibility:hidden">'+value+'</span>  '; //+ value;
+                    //return '<span class="fa fa-times text-danger"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    return '<span class="text-warning font-weight-bold">CONCEPTION (PRODUCTION)</span>'
+                    //return  value;
+                    break;
+                case 'PROD_PROD_DEV':
+                    //<span id="firstnameInvalid" style="color:red; visibility:hidden">
+                    //return '<span class="fas fa-check text-success"></span><span style="visibility:hidden">'+value+'</span>  '; //+ value;
+                    //return '<span class="fa fa-times text-danger"></span><span style="visibility:hidden">'+data+'</span>'; //+ value;
+                    return '<span class="text-danger font-weight-bold">DEVELOPPEMENT (PRODUCTION)</span>'
+                    //return  value;
+                    break;
+                default:
+                    return data;
             }
-            return nSL
         }
-        // Otherwise the data type requested (`type`) is type detection or
-        // sorting value, for which we want to use the integer, so just return
-        // that, unaltered
-        return data;
-    },
-    GPFormatter: function (data, type, row) {
-        if ( type === 'display' || type === 'filter' ) {
-            // <span class="badge badge-pill badge-success">MAD</span>'
-    
-            nValue = parseFloat(data);
-            if(isNaN(nValue))
-            return data
-        
-            if(nValue >= 0){
-            return '<span class="text-success">' + nValue + '</span>';
-            }
-            if(nValue < 0){
-                return '<span class="text-primary">' + nValue + '</span>';
-            }
-            return data
-            }
-        // Otherwise the data type requested (`type`) is type detection or
-        // sorting value, for which we want to use the integer, so just return
-        // that, unaltered
-        return data;
     },
 }
 // =============================================================================================
@@ -1022,7 +1095,7 @@ var ajaxSSE = {
         // -- Categorie
         switch(message.cat){
             case 'INFO':
-                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-light'>" + message.mess + "</span></span>"
+                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-info'>" + message.mess + "</span></span>"
                 break;
             case 'SUCCESS':
                 text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-success'>" + message.mess + "</span></span>"
@@ -1034,23 +1107,23 @@ var ajaxSSE = {
                 text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-warning'>" + message.mess + "</span></span>"
                 break;
             case 'NORMAL':
-                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-light'>" + message.mess + "</span></span>"
+                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-primary'>" + message.mess + "</span></span>"
                 break;
             case 'TITLE':
-                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-primary font-weight-bold'>" + message.mess + "</span></span>"
+                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-secondary font-weight-bold'>" + message.mess + "</span></span>"
                 break;
             case 'CRITICAL':
                 text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<u><span class='text-danger font-weight-bold'>" + message.mess + "</span></u></span>"
                 break;
             case 'DOWNLOAD':
-                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<u><span class='text-warning font-weight-bold'>" + message.mess + "</span></u></span>"
+                text += "       <span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='font-weight-bold'>" + message.mess + "</span></span>"
                 break;
             case 'ERROR_TASK':
-                text +="<span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-light'>" + message.mess + "</span></span>"
+                text +="<span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-dark'>" + message.mess + "</span></span>"
                 text +="<span class='float-md-right badge badge-danger'>ECHEC</span>"
                 break;
             case 'SUCCESS_TASK':
-                text +="<span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-light'>" + message.mess + "</span></span>"
+                text +="<span class='float-md-left'>" + message.date + "&nbsp : &nbsp<span class='text-dark'>" + message.mess + "</span></span>"
                 text +="<span class='float-md-right badge badge-success'>SUCCES</span>"
                 break;
             default:
@@ -1141,8 +1214,8 @@ var ajaxUpload = {
                         notify.error( { "mess": "Categorie de message Inconnu : " + response.cat, "oper" : " Traitement reponse AJAX " } )
                 }
             }
-            // -- Traitement du callback si succes
-            if (callback !== null && response.cat == "SUCCESS") {
+            // -- Traitement du callback si success
+            if (callback !== null && response.cat == "SUCCESS" ) {
                 eval(callback)
             }
 

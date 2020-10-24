@@ -71,7 +71,7 @@ class SyncOrdersHelpers(object):
             MOIS=int(datetime.datetime.now().strftime("%m")),
             DAY=datetime.datetime.now().strftime("%d")
         )
-        self._start = datetime.datetime.strptime(start, '%Y-%m-%d') - datetime.timedelta(days=7)
+        self._start = datetime.datetime.strptime(start, '%Y-%m-%d') - datetime.timedelta(days=130)
 
         pass
 

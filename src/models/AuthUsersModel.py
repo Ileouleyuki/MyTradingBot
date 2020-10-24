@@ -74,9 +74,7 @@ class AuthUsersModel(SqliteAdapter):
                 TBL_USERS=self.table, TBL_FAIL=AuthFailedLoginModel().table
             )
         df = self.getToDataFrame(query, Limit)
-        if df is None or df.empty:
-            return None
-        return df.to_dict("Record")
+        return df
 
     def is_unique_username(self, value):
         return self.is_unique(self.table_users, "username", value)

@@ -97,7 +97,7 @@ def logout():
 @home_bp.route('/home')
 @login_required
 def home():
-    return Render.htmlTemplate('home/home.html')
+    return Render.htmlTemplate('home/dashboard.html')
 
 # ----------------------------------------------------------------------------------------------------
 # Chemin GET pour atteindre /home

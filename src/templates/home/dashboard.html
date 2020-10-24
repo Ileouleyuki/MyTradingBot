@@ -1,0 +1,565 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}
+<link href="{{url_for('static', filename='assets/chartjs/2.9.4/Chart.min.css')}} " rel="stylesheet">
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+
+    <div class="container-fluid mt-3">
+        <!-- Begin Page Content -->
+
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+              <h1 class="h3 mb-0 text-gray-800">Dashboard <span id='period'></span> <span id='period_detail'></span></h1>
+
+              <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                  <button type="button" class="btn btn-primary"><i class="fas fa-download fa-sm text-white-50"></i> Generation Rapport</button>
+                </div>
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                  <button type="button" class="btn btn-primary" id='btn-period-quotidien'><i class="fas fa-clock" ></i>&nbspQuotidien</button>
+                  <button type="button" class="btn btn-primary" id='btn-period-hebdomadaire'><i class="fas fa-clock" ></i>&nbspHebdo</button>
+                  <button type="button" class="btn btn-primary" id='btn-period-mensuel'><i class="fas fa-clock" ></i>&nbspMensuel</button>
+                  <button type="button" class="btn btn-primary" id='btn-period-annuel'><i class="fas fa-clock" ></i>&nbspAnnuel</button>
+                </div>
+              </div>
+            </div>  
+            <!-- ----------------------------------------------------------------------------------------------- -->
+            <!-- [CARD] - INDICATEURS -->
+            <!-- ----------------------------------------------------------------------------------------------- -->
+            <div class="row">
+              <!-- CAPITAL A CE JOUR -->
+              <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-light text-uppercase mb-1">Capital (A ce jour)</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800" id='capital_today'>$40,000</div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-money-bill-wave fa-3x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- GAIN/PERTES -->
+              <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-light text-uppercase mb-1">Gain/Pertes</div>
+                        <div class="h4 mb-0 font-weight-bold text-gray-800" id='gp_total'>$40,000</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                          <small>
+                            Pertes <span id='gp_wins' class='text-danger'>test</span>&nbsp&nbsp
+                            Gain <span id='gp_lose' class='text-success'>test</span>
+                            </small> 
+                        </div>
+                        
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-hand-holding-heart fa-3x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRADES -->
+              <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-light text-uppercase mb-1"><span id='trade_total'>0</span> Trades</div>
+                        <div class="row no-gutters align-items-center">
+                          <div class="col-auto">
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id='trade_ratio_wins'>40%</div>
+                          </div>
+                          <div class="col">
+                            <div class="progress progress-sm mr-2">
+                              <div class="progress-bar bg-success" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id='progress-trade-wins'></div>
+                              <div class="progress-bar bg-danger" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" id='progress-trade-lose'></div>
+                            </div>
+                          </div>
+                          <div class="col-auto">
+                            <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800" id='trade_ratio_lose'>60%</div>
+                          </div>
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                          <small>
+                            Perdant <span id='trade_lose' class='text-danger'>test</span>&nbsp&nbsp
+                            Gagnant <span id='trade_wins' class='text-success'>test</span>
+                            </small> 
+                        </div>
+
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-3x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- SESSION -->
+              <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                  <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-light text-uppercase mb-1">Tendance</div>
+                        <div class="h2 mb-0 font-weight-bold text-gray-800" id='evaluation'>18</div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-adjust fa-3x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- // Content Row -->
+            
+            <!-- ----------------------------------------------------------------------------------------------- -->
+            <!-- [CARD] - GRAPHIQUES -->
+            <!-- ----------------------------------------------------------------------------------------------- -->
+            <div class="row">
+              <!-- Area Chart -->
+              <div class="col-xl-6 col-lg-6">
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Dropdown -->
+                  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-light">Performance des <u>Trades</u> sur la Periode</h6>
+                  </div>
+                  <!-- Card Body -->
+                  <div class="card-body">
+                    <div class="chart-area">
+                      <canvas id="myAreaChartForTrade" width="400" height="150"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Pie Chart -->
+              <div class="col-xl-6 col-lg-6">
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Dropdown -->
+                  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-light">Performance <u>Rentabilité</u> sur la Periode</h6>
+                  </div>
+                  <!-- Card Body -->
+                  <div class="card-body">
+                      <canvas id="myAreaChartForGp" width="400" height="150"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+            <!-- Content Row -->
+            <div class="row">
+  
+              <!-- Content Column -->
+              <div class="col-lg-6 mb-4">
+  
+                <!-- Project Card Example -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-light">Projects</h6>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="small font-weight-bold">Server Migration <span class="float-right">20%</span></h4>
+                    <div class="progress mb-4">
+                      <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">Sales Tracking <span class="float-right">40%</span></h4>
+                    <div class="progress mb-4">
+                      <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">Customer Database <span class="float-right">60%</span></h4>
+                    <div class="progress mb-4">
+                      <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">Payout Details <span class="float-right">80%</span></h4>
+                    <div class="progress mb-4">
+                      <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <h4 class="small font-weight-bold">Account Setup <span class="float-right">Complete!</span></h4>
+                    <div class="progress">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                  </div>
+                </div>
+  
+                <!-- Color System -->
+                <div class="row">
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-primary text-white shadow">
+                      <div class="card-body">
+                        Primary
+                        <div class="text-white-50 small">#4e73df</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-success text-white shadow">
+                      <div class="card-body">
+                        Success
+                        <div class="text-white-50 small">#1cc88a</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-info text-white shadow">
+                      <div class="card-body">
+                        Info
+                        <div class="text-white-50 small">#36b9cc</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-warning text-white shadow">
+                      <div class="card-body">
+                        Warning
+                        <div class="text-white-50 small">#f6c23e</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-danger text-white shadow">
+                      <div class="card-body">
+                        Danger
+                        <div class="text-white-50 small">#e74a3b</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-secondary text-white shadow">
+                      <div class="card-body">
+                        Secondary
+                        <div class="text-white-50 small">#858796</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 mb-4">
+                    <div class="card bg-light text-black shadow">
+                      <div class="card-body">
+                        Light
+                        <div class="text-black-50 small">#f8f9fc</div>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                  <div class="card bg-dark text-white shadow">
+                    <div class="card-body">
+                        Dark
+                        <div class="text-white-50 small">#5a5c69</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              </div>
+  
+              <div class="col-lg-6 mb-4">
+  
+                <!-- Illustrations -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-light">Illustrations</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="text-center">
+                      <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="https://fxmedia.s3.amazonaws.com/articles/forex-trading-account-1.jpg" alt="">
+                    </div>
+                    <p>Add some quality, svg illustrations to your project courtesy of <a target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a constantly updated collection of beautiful svg images that you can use completely free and without attribution!</p>
+                    <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on unDraw &rarr;</a>
+                  </div>
+                </div>
+  
+                <!-- Approach -->
+                <div class="card shadow mb-4">
+                  <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-light">Development Approach</h6>
+                  </div>
+                  <div class="card-body">
+                    <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce CSS bloat and poor page performance. Custom CSS classes are used to create custom components and custom utility classes.</p>
+                    <p class="mb-0">Before working with this theme, you should become familiar with the Bootstrap framework, especially the utility classes.</p>
+                  </div>
+                </div>
+  
+              </div>
+            </div>
+  
+          
+          
+  
+        </div>
+        <!-- End of Main Content -->
+    </div>
+    <!-- /.container-fluid -->
+
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+<script src="{{url_for('static', filename='assets/chartjs/2.9.4/Chart.bundle.min.js')}} "></script>
+
+<script>
+    var myAreaChartForTrade
+    var myAreaChartForGp
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function(){
+      //setTimeout(app.stopLoader, config.timeout );
+      
+      // Initialisation du Graphique des Performances par TRADES
+      var ctx = document.getElementById('myAreaChartForTrade').getContext('2d');
+      myAreaChartForTrade = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [],
+              datasets: [
+              {
+                  label: 'Gagnant',
+                  data: [],
+                  backgroundColor: "#00bc8c",
+                  borderColor: "rgba(75,192,192,1)",
+              },
+              {
+                  label: 'Perdant',
+                  data: [],
+                  backgroundColor: "#e74c3c",
+                  borderColor: "rgba(75,192,192,1)",
+
+              },
+            ]
+          },
+          options: {
+              scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero: true
+                      }
+                  }]
+              }
+          }
+      });
+      // Initialisation du Graphique des Performances par TRADES
+      var ctx = document.getElementById('myAreaChartForGp').getContext('2d');
+      myAreaChartForGp = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [],
+              datasets: [
+              {
+                  label: 'GAIN',
+                  data: [],
+                  backgroundColor: "#00bc8c",
+                  borderColor: "rgba(75,192,192,1)",
+              },
+              {
+                  label: 'PERTE',
+                  data: [],
+                  backgroundColor: "#e74c3c",
+                  borderColor: "rgba(75,192,192,1)",
+
+              },
+            ]
+          },
+          options: {
+              scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero: true
+                          
+                      }
+                  }]
+              }
+          }
+      });
+      
+      load_dashboard('DAILY')
+    // --------------------------------------------------------------------
+    });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // Clique sur Dashboard (Quotidien)
+    // =================================================================================
+    $("#btn-period-quotidien").click(function () {
+      load_dashboard('DAILY')
+    });
+    // =================================================================================
+    // Clique sur Dashboard (Hebdomadaire)
+    // =================================================================================
+    $("#btn-period-hebdomadaire").click(function () {
+      load_dashboard('WEEKLY')
+    });
+    // =================================================================================
+    // Clique sur Dashboard (Mensuel)
+    // =================================================================================
+    $("#btn-period-mensuel").click(function () {
+      load_dashboard('MONTHLY')
+    });
+    // =================================================================================
+    // Clique sur Dashboard (Annuel)
+    // =================================================================================
+    $("#btn-period-annuel").click(function () {
+      load_dashboard('YEAR')
+    });
+
+    // =================================================================================
+    // Chargement des Données
+    // =================================================================================
+    function load_dashboard(period){
+      $("#period").html(period).css('textTransform', 'capitalize');
+      // -- Creation d'un FormData vide
+      var data = {'period':period};
+      data = helpers.appendCsrfToken(data),
+
+      // -- Chargement du loader
+      app.startLoader('body')
+      // -- Lancement du traitement 
+      $.post("{{ url_for('api.dashboard.getReport') }}", data, function (result) {}, "json")
+      .done(function(msg){ 
+        console.log('done')
+        // -- Modification du DOM
+        // INDICATEURS
+        $("#period_detail").html("(" + msg.data.period_detail + ")")
+        $("#capital_today").html(msg.data.capital_today + " €")
+        
+        if(msg.data.gp_total > 0){
+          $("#gp_total").removeClass('text-danger').removeClass('text-success').html(msg.data.gp_total + " €").addClass('text-success')
+        }else if(msg.data.gp_total < 0){
+          $("#gp_total").removeClass('text-danger').removeClass('text-success').html(msg.data.gp_total + " €").addClass('text-danger')
+        }else{
+          $("#gp_total").removeClass('text-danger').removeClass('text-success').html(msg.data.gp_total + " €").removeClass('text-danger').removeClass('text-success')
+        }
+
+
+        $("#gp_lose").html(msg.data.gp_lose + " €")
+        $("#gp_wins").html(msg.data.gp_wins + " €")
+        $("#gp_ratio_lose").html(msg.data.gp_ratio_lose)
+        $("#gp_ratio_wins").html(msg.data.gp_ratio_wins)
+
+        
+        // TRADES
+        $("#trade_total").html(msg.data.trade_total)
+        $("#trade_lose").html(msg.data.trade_lose)
+        $("#trade_wins").html(msg.data.trade_wins)
+        
+        $("#trade_ratio_lose").html(msg.data.trade_ratio_lose+ " %")
+        $("#trade_ratio_wins").html(msg.data.trade_ratio_wins+ " %")
+
+        $("#progress-trade-wins").width(msg.data.trade_ratio_wins + "%").attr('aria-valuenow', msg.data.trade_ratio_wins.toString());
+        $("#progress-trade-lose").width(msg.data.trade_ratio_lose + "%").attr('aria-valuenow', msg.data.trade_ratio_lose.toString());
+        
+        // EVALUATION
+        if(msg.data.evaluation == 'NOTCOOL'){
+          $("#evaluation").html('<i class="fas fa-angry text-danger"></i>')
+        }else if(msg.data.evaluation == 'COOL'){
+          $("#evaluation").html('<i class="fas fa-smile-wink text-success"></i>')
+        }else{
+          $("#evaluation").html('<i class="fas fa-equals text-warning"></i>')
+        }
+        
+        // GRAPHIQUE
+        loadGraphPerfTrade(msg.data.PerfTradeDataGraph)
+        loadGraphPerfGp(msg.data.PerfGpDataGraph)
+        // POSITIONS EN COURS
+        // ORDRES
+        // CALENDRIER
+      })
+      .fail(function(xhr, status, error) {
+        console.log('fail')
+        notify.error(xhr.responseJSON)
+      }).always(function () {
+        console.log('always')
+        // -- Fin du loader
+        app.stopLoader('body')
+      });;
+    }
+
+    // =================================================================================
+    // Chargement du Graphique 1
+    // =================================================================================
+    function loadGraphPerfTrade(result){
+      // Ajout label
+      myAreaChartForTrade.data.labels = result.labels
+      myAreaChartForTrade.data.datasets[0].data = []
+      myAreaChartForTrade.data.datasets[1].data = []
+      result.nb_trd_win.forEach(element => myAreaChartForTrade.data.datasets[0].data.push(element));
+      result.nb_trd_lose.forEach(element => myAreaChartForTrade.data.datasets[1].data.push(element));
+      myAreaChartForTrade.update();
+    }
+
+    // =================================================================================
+    // Chargement du Graphique Area
+    // =================================================================================
+    function loadGraphPerfGp(result){
+      // Ajout label
+      console.log(result)
+      myAreaChartForGp.data.labels = result.labels
+      myAreaChartForGp.data.datasets[0].data = []
+      myAreaChartForGp.data.datasets[1].data = []
+      result.nb_gp_win.forEach(element => myAreaChartForGp.data.datasets[0].data.push(element));
+      result.nb_gp_lose.forEach(element => myAreaChartForGp.data.datasets[1].data.push(element));
+      myAreaChartForGp.update();
+      
+    }
+
+
+
+
+
+
+    // =================================================================================
+    // Clique sur test reponse JSON
+    // =================================================================================
+    $("#btn-test").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajax.send("{{ url_for('api.test.testJSON') }}", data, true)
+    });
+    // =================================================================================
+    // Clique sur test reponse JSON
+    // =================================================================================
+    $("#btn-test-2").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        $.post("{{ url_for('api.test.testJSON') }}", data, function (result) {
+            notify.info(result)
+        } , "json")
+        .done(function(msg){ notify.success(msg) })
+        .fail(function(xhr, status, error) {
+            notify.error(xhr.responseJSON)
+        });
+    });
+
+    // =================================================================================
+    // Clique sur test reponse JSON (PROGRESSION)
+    // =================================================================================
+    $("#btn-test-progress").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajaxSSE.send("{{ url_for('api.test.testJSONProgress') }}", data, true)
+    });
+</script>   
+{% endblock %}

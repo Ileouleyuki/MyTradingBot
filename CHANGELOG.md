@@ -4,6 +4,7 @@
 - Gestion des Ordres
 - Synchronisation des Marchés
 - Synchronisation des Ordres
+- Gestion des Parametres
 
 ### [1.1.0] - 2020-10-22
 

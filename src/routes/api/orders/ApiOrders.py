@@ -17,6 +17,7 @@ from core.Config import cfg
 from core.Session import Session
 from core.Render import Render
 from core.Decorateur import csrf_protect, login_required
+from core.Utils import Utils
 from models.OrdersModel import OrdersModel
 from middleware.SyncOrdersHelpers import SyncOrdersHelpers
 # Logger
@@ -45,8 +46,11 @@ def getAll():
     if request.method == 'POST':
         # Recuperation des infos
         data = OrdersModel().getAll()
+        # Formatage des Delais
+        data['delai'] = data['delai'].apply(Utils.formatSeconds)
+        # df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
         # Retour du message
-        return Render.jsonTemplate(_OPERATION, 'Ordres', categorie="SUCCESS", data=data.to_dict("Records"))
+        return Render.jsonTemplate(_OPERATION, 'Ordres', categorie="SUCCESS", data=data.to_dict("records"))
     else:
         abort(400)
 

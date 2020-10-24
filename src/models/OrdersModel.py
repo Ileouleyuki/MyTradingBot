@@ -88,7 +88,7 @@ class OrdersModel(SqliteAdapter):
                 -- orders.order,
                 open_time,
                 close_time,
-                (close_time - open_time) as delai,
+                (close_time - open_time) / 1000 as delai,
                 open_price,
                 close_price,
                 volume,
