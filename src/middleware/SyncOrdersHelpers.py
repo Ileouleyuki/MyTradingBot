@@ -20,7 +20,7 @@ sys.path.append(os.path.dirname(__file__))
 
 from lib.xtb import XtbClient    # NOQA # isort:skip
 from models.OrdersModel import OrdersModel   # NOQA # isort:skip
-
+from lib.configuration import Configuration  # NOQA # isort:skip
 
 ######################################################################################################
 # Class SyncOrdersHelpers
@@ -30,14 +30,14 @@ from models.OrdersModel import OrdersModel   # NOQA # isort:skip
 class SyncOrdersHelpers(object):
 
     # ------------------------------------------------------------------------------------------------
-    def __init__(self, account='DEMO'):
+    def __init__(self):
         """
         Initialisation de l'objet
         """
         # Enregistrement des variables utiles
-        self._type = 'DEMO'
-        self._accId = '11473046'
-        self._mdp = 'Uvzdhwa4crxhud*'
+        self._type = Configuration.from_filepath().get_type_account()
+        self._accId = Configuration.from_filepath().get_credentials()[self._type.lower()]['account_id']
+        self._mdp = Configuration.from_filepath().get_credentials()[self._type.lower()]['password']
         # Initialisation des variables necessaires
         self._broker = None
         self._mdl = None

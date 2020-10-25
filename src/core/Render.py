@@ -15,9 +15,8 @@ from flask import render_template, jsonify
 # Perso
 from core.Config import cfg
 from core.Session import Session
-
-# from lib.sysinfo import SysInfo
-
+from lib.sysinfo import SysInfo
+from lib.configuration import Configuration
 
 ######################################################################################################
 # CLASS
@@ -50,17 +49,18 @@ class Render:
         info["js"] = {
             'timeout': str(cfg._JS_TIMEOUT_LOADER),
             'csrfToken': Session.generateCsrfToken(),
-            'root': cfg._ENV[cfg._ENVIRONNEMENT]["JS_ROOT_DEV"]
+            'root': cfg._ENV[cfg._ENVIRONNEMENT]["JS_ROOT_DEV"],
+            'timeZone': Configuration.from_filepath().get_time_zone()
         }
         # System
         info["system"] = {
-            'main': "TODO",  # SysInfo().getSystem(),
-            'python': "TODO"  # SysInfo().getPython(),
+            'main': SysInfo().getSystem(),
+            'python': SysInfo().getPython(),
         }
         # Compte
         info["compte"] = {
             # Courante
-            'WorkOnCompte': Session.getValue("WorkOnCompte")
+            'WorkOnCompte': Configuration.from_filepath().get_type_account()
         }
 
         return info

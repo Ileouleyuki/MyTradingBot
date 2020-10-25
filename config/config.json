@@ -1,0 +1,12 @@
+{
+    "broker": {
+        "filepathCredentials": "config/xtb.json",
+        "use_demo_account": true
+    },
+    "spin_interval": "5m",
+    "time": {
+        "hour_end": "18:30",
+        "hour_start": "08:30",
+        "time_zone": "Europe/Paris"
+    }
+}

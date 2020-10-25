@@ -3,12 +3,6 @@
 {# STYLES #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block stylesheets %}
-<!-- DataTables + YADCF Filters -->
-<link href="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.css')}}" rel="stylesheet">
-<link href="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/css/buttons.bootstrap4.min.css')}} " rel="stylesheet">
-<link href="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/css/fixedHeader.bootstrap4.min.css')}} " rel="stylesheet">
-<link href="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/css/colReorder.bootstrap4.min.css')}} " rel="stylesheet">
-<link href="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/css/rowGroup.bootstrap4.min.css')}} " rel="stylesheet">
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# CORPS #}
@@ -22,7 +16,11 @@
                     </h1>
                 </div>
                 <hr>
-        <table id="table" class="table table-striped py-3" style="width:100%"></table>
+                <ul class="list-group" id="log">
+
+                </ul>
+                <br>
+        
     </div>
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
@@ -30,152 +28,67 @@
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block javascript %}
 <!-- JS - DataTables + YADCF (Filters) -->
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.js')}}"></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedColumns-3.3.0/js/fixedColumns.bootstrap4.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/dataTables.buttons.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.bootstrap4.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/JSZip-2.5.0/jszip.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/pdfmake.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/vfs_fonts.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.html5.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.print.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.colVis.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/js/dataTables.colReorder.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/js/dataTables.fixedHeader.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
-<script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
-<script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
+
 <script>
     // =================================================================================
     // JAVASCRIPT
     // =================================================================================
     $(document).ready(function () {
-        load_data_table();
+        // -- Let's GO
+        setTimeout(load_data_activity(), config.timeout)
     });// -- Fin du document JAVASCRIPT
     // =================================================================================
     // -- Chargement du Tableau
     // =================================================================================
-    function load_data_table() {
-        table = $('#table').DataTable({
-            // -- ------------------ --
-            // -- PARAMETRE GENERAUX
-            // -- ------------------ --
-            "language": {
-                "url": "/static/assets/datatables/French.json"         // Traduction en francais
-            },
-            destroy: true,
-            paging: true, // Pagination
-            pageLength: 10, // Nombre par pages
-            bFilter: true, // Barre de Recherche
-            ordering: false, // Autoriser le Sort.
-            lengthChange: false,
-            responsive:true,
-            info: true, // Information en bas de page
-            fixedHeader: true, // Fixation du Header
-            colReorder: false, // Reordonner les colonnes
-            // -- ------------------ --
-            // -- APPEL AJAX
-            // -- ------------------ --
-
-            "ajax": {
-                "url": "{{ url_for('api.admin.getActivityEntries') }}",
-                "data": {
-                    "csrfToken": config.csrfToken
-                },
-                "dataSrc": function (json) {
-                    if (app.loadTable(json) == true) {
-                        return json.data;
-                    }
-                    // Verification de la reponse
-                    /*
-                    Si mauvaise reponse, 
-                        On arrete le loader
-                        On affiche un message
-                        On stop le traitement
-                    */
-                    return null;
-                },
-                error: function (xhr, error, code)
-                {
-                    notify.error(xhr.responseJSON)
-                    app.stopLoader()
-                },
-                "type": "POST"
-            },
-            // -- ------------------ --
-            // -- EVENEMENT
-            // -- ------------------ --
-            "drawCallback": function (settings, json) {
-                $('#SpanTotalGlobale').html(settings.aiDisplay.length);
-            },
-            "initComplete": function (settings, json) {
-                $('#table').DataTable().buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');
-                $('#table thead').addClass('thead-dark');
-                finishload();
-            },
-            // -- ------------------ --
-            // -- APPEL AJAX
-            // -- ------------------ --
-            
-            "columns": [
-                { "title": "DATE", "data": "TimeStampUtc", index: 0 },
-                { "title": "NIVEAU", "data": "LogLevelName", index: 1 },
-                { "title": "MESSAGE", "data": "Message", index: 2 }
-            ],
-            "order": [[1, "desc"]],
-            "createdRow": (row, data, dataIndex) => {
-                if(data["LogLevelName"].trim() == "INFO"){   
-                    $(row).addClass("table-dark");
-                }else if(data["LogLevelName"].trim()  == "ERROR"){   
-                    $(row).addClass("table-danger");
-                }else if(data["LogLevelName"].trim()  == "SUCCESS"){   
-                    $(row).addClass("table-success");
-                }else if(data["LogLevelName"].trim()  == "WARNING"){   
-                    $(row).addClass("table-warning");
-                }else if(data["LogLevelName"].trim()  == "DEBUG"){   
-                    //$(row).addClass("table-light");
-                    $(row).css("background-color", "#006666");
-                }else{
-                    $(row).addClass("table-secondary");
-                    
+    function load_data_activity() {
+        // -- Creation d'un FormData vide
+        var data = {};
+        data = helpers.appendCsrfToken(data),
+        // -- Lancement du traitement 
+        $.post("{{ url_for('api.admin.getActivityEntries') }}", data, function (result) {}, "json")
+        .done(function(msg){ 
+            console.log('done')
+            // -- Modification du DOM
+            console.log(msg)
+            $.each( msg.data, function( key, value ) {
+                console.log(value)
+                // -- Parse de la Date
+                tmpDate = moment.utc(value.TimeStampUtc).tz(config.timeZone)
+                // -- Construction du Text
+                //moment(value.TimeStampUtc).tz(config.timeZone).format("ddd DD MMM YYYY HH:mm:ss")
+                text = ''
+                switch (value.LogLevelName) {
+                    case 'DEBUG':
+                        text = '<a class="list-group-item list-group-item-warning text-dark">'
+                        break;
+                    case 'ERROR':
+                        text = '<a class="list-group-item list-group-item-danger text-dark">'
+                        break;
+                    default:
+                        text = '<a class="list-group-item">';
+                        break;
                 }
-            },
-            "columnDefs": [
-                // -- Formatage du Champ DATE
-                { "width": "10%", "type": "html", "targets": [0], "visible": true, "searchable": true, className: 'text-center font-weight-bold', defaultContent: "",
-                    render: function (data, type, row, meta) {
-                        return formatDt.DateTimeBasicFormatter(data, type, row)
-                    }
-                },
-                // -- Formatage du Champ NIVEAU
-                {"width": "10%", "type": "html", "targets": [1], "visible": true, "searchable": true, className: 'text-center', defaultContent: ""},
-                // -- Formatage du Champ MESSAGE
-                {"width": "80%", "type": "html", "targets": [2], "visible": true, "searchable": true, className: 'text-left text-italic', defaultContent: ""},
-            ],
+                //text += value.TimeStampUtc + "-" + value.Message
+                text += '<div class="d-flex w-100 justify-content-between">'
+                text += '<h5 class="mb-1"><span class="badge badge-info">' + value.LogLevelName + '</span>&nbsp&nbsp&nbsp' + tmpDate.format("ddd DD MMM YYYY HH:mm:ss") + '</h5>'
+                text += '<small>' + tmpDate.fromNow() + '</small>'
+                text += '</div>'
+                text += '<p class="mb-1 font-weight-bold">' + value.Message + '</p>'
+                //text += '<small>Donec id elit non mi porta.</small>'
+                text += '</a>'
+                $("#log").append(text)
+            });
+            
+        })
+        .fail(function(xhr, status, error) {
+            console.log('fail')
+            notify.error(xhr.responseJSON)
+        }).always(function () {
+            console.log('always')
+            // -- Fin du loader
+            app.stopLoader('body')
         });
     }
-    // =================================================================================
-    // Finalisation du Chargement
-    // =================================================================================
-    function finishload() {
-        // -- Filtrage des informations
-        yadcf.init(table, [
-            // Filtre sur SIGNAL
-            /*
-            {
-               column_number: 3, filter_reset_button_text: false, style_class: "custom-select",
-               filter_type: 'select',
-               data: [{
-                  value: ' ',
-                  label: 'Vides'
-               }],
-               append_data_to_table_data: 'before',
-               filter_match_mode: 'exact',
-               filter_default_label: "Tous"
-            },
-            */
-        ])
-        app.stopLoader()
-    }
+    
 </script>
 {% endblock %}

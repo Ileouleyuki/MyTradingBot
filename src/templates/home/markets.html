@@ -44,6 +44,7 @@
 <script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
 <script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
 <script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
+<script src="{{url_for('static', filename='js/format.js')}} "></script>
 <script>
     // =================================================================================
     // JAVASCRIPT
@@ -184,7 +185,7 @@
                 // -- Formatage du Champ TIME
                 { "type": "html", "targets": [8], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
                   render: function (data, type, row, meta) {
-                        return formatDt.DateTimeBasicFormatter(data, type, row)
+                        return formatDt.TimestampBasicFormatter(data, type, row)
                   }
                 },
                 // -- Formatage du Champ BID

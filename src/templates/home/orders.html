@@ -44,6 +44,7 @@
 <script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
 <script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
 <script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
+<script src="{{url_for('static', filename='js/format.js')}} "></script>
 <script>
     // =================================================================================
     // JAVASCRIPT
@@ -133,63 +134,85 @@
             //symbol,-- orders.order,open_time,close_time,-- delai,open_price,close_price,spread,timestamp,volume,sl,tp,margin_rate,commission,profit,-- type,storage,closed,comment,customComment
             "columns": [
                 { "title": "ID", "data": "id", index: 0 },
-                { "title": "SYMBOL", "data": "symbol", index: 1 },
-                { "title": "OUVERTURE", "data": "open_time", index: 2 },
-                { "title": "FERMETURE", "data": "close_time", index: 3 },
-                { "title": "DELAI", "data": "delai", index: 4 },
-                { "title": "OPEN", "data": "open_price", index: 5 },
-                { "title": "SL", "data": "sl", index: 6 },
-                { "title": "TP", "data": "tp", index: 7 },
-                { "title": "CLOSE", "data": "close_price", index: 8 },
-                { "title": "SIZE", "data": "volume", index: 9 },
-                { "title": "COUT", "data": "commission", index: 10 },
-                { "title": "G/P", "data": "profit", index: 11 },
-                { "title": "COMMENTAIRES", "data": "comment", index: 12 }   
-                //{ "title": "ACTIONS", "data": null }
+                { "title": "EVAL", "data": null, index:1 },
+                { "title": "SYMBOL", "data": "symbol", index: 2 },
+                { "title": "SENS", "data": null, index:3 },
+                { "title": "OUVERTURE", "data": "open_time", index: 4 },
+                { "title": "FERMETURE", "data": "close_time", index: 5 },
+                { "title": "DELAI", "data": "delai", index: 6 },
+                { "title": "OPEN", "data": "open_price", index: 7 },
+                { "title": "SL", "data": "sl", index: 8 },
+                { "title": "TP", "data": "tp", index: 9 },
+                { "title": "CLOSE", "data": "close_price", index: 10 },
+                { "title": "SIZE", "data": "volume", index: 11 },
+                { "title": "COUT", "data": "commission", index: 12 },
+                { "title": "G/P", "data": "profit", index: 13 },
+                { "title": "COMMENTAIRES", "data": "comment", index: 14 },
+                
 
             ],
             "order": [[1, "desc"]],
             "columnDefs": [
                 // -- Formatage du Champ ID
                 { "type": "html", "targets": [0], "visible": false, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ EVAL
+                { "type": "html", "targets": [1], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                            return formatDt.EvalFormatter(data, type, row)
+                    }
+                },
+
                 // -- Formatage du Champ SYMBOL
                 {
-                    "type": "html", "targets": [1], "visible": true, "searchable": true, className: 'text-left text-info font-weight-bold', defaultContent: "",
+                    "type": "html", "targets": [2], "visible": true, "searchable": true, className: 'text-left text-info font-weight-bold', defaultContent: "",
+                },
+                 // -- Formatage du Champ SENS
+                 {
+                    "type": "html", "targets": [3], "visible": true, "searchable": true, className: 'text-center font-weight-bold', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                            return formatDt.DirectionFormatter(data, type, row)
+                    }
                 },
                 // -- Formatage du Champ OUVERTURE
-                { "type": "html", "targets": [2], "visible": true, "searchable": true, className: 'text-center', defaultContent: "",
+                { "type": "html", "targets": [4], "visible": true, "searchable": true, className: 'text-center', defaultContent: "",
                     render: function (data, type, row, meta) {
-                        return formatDt.DateTimeBasicFormatter(data, type, row)
+                        return formatDt.TimestampBasicFormatter(data, type, row)
                     }
                 },
                 // -- Formatage du Champ FERMETURE
                 {
-                    "type": "html", "targets": [3], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                    "type": "html", "targets":[5], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
                         render: function (data, type, row, meta) {
-                            return formatDt.DateTimeBasicFormatter(data, type, row)
+                            return formatDt.TimestampBasicFormatter(data, type, row)
                         }
                 },
                 // -- Formatage du Champ DELAI
-                { "type": "html", "targets": [4], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
-                // -- Formatage du Champ OPEN
-                { "type": "html", "targets": [5], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
-                // -- Formatage du Champ SL
                 { "type": "html", "targets": [6], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                // -- Formatage du Champ OPEN
+                { "type": "html", "targets": [7], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ SL
+                { "type": "html", "targets": [8], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
                 // -- Formatage du Champ TP
-                { "type": "html", "targets": [7], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                { "type": "html", "targets": [9], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
                 // -- Formatage du Champ CLOSE
-                { "type": "html", "targets": [8], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
-                // -- Formatage du Champ SIZE
-                { "type": "html", "targets": [9], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
-                // -- Formatage du Champ COUT
                 { "type": "html", "targets": [10], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
-                // -- Formatage du Champ G/P
+                // -- Formatage du Champ SIZE
                 { "type": "html", "targets": [11], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ COUT
+                { "type": "html", "targets": [12], "visible": true, "searchable": false, className: 'text-center text-danger', defaultContent: "" },
+                // -- Formatage du Champ G/P
+                { "type": "html", "targets": [13], "visible": true, "searchable": false, className: 'text-center font-weight-bold', defaultContent: "",
+                
+                    render: function (data, type, row, meta) {
+                            return formatDt.GpFormatter(data, type, row)
+                        }
+                },
                 // -- Formatage du Champ comment
-                { "type": "html", "targets": [12], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                { "type": "html", "targets": [14], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
 
-                // -- Formatage du Champ customComment
-                { "type": "html", "targets": [13], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                
+                
+                
 
                 // -- Formatage de la colonne ACTION
                 /*

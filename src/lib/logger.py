@@ -14,7 +14,7 @@ import time
 
 initial_sql = """CREATE TABLE IF NOT EXISTS {TABLE}(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    TimeStampUtc TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+                    TimeStampUtc TIMESTAMP(13) DEFAULT CURRENT_TIMESTAMP,
                     Source TEXT,
                     LogLevel INT,
                     LogLevelName TEXT,
@@ -78,11 +78,12 @@ class SQLiteHandler(logging.Handler):
         """
         Formatage TimeStamp
         """
-        record.dbtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(record.created))
+        # record.dbtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(record.created))
+        record.dbtime = time.gmtime()
 
     def emit(self, record):
         self.format(record)
-        # self.format_time(record)
+        self.format_time(record)
         print(record.msg)
         if record.exc_info:  # Pour exceptions
             record.exc_text = logging._defaultFormatter.formatException(record.exc_info)
@@ -103,7 +104,7 @@ class SQLiteHandler(logging.Handler):
 
 initial_url_sql = """CREATE TABLE IF NOT EXISTS {TABLE}(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    TimeStampUtc TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+                    TimeStampUtc TIMESTAMP(13) DEFAULT CURRENT_TIMESTAMP,
                     ip TEXT,
                     user TEXT,
                     userId TEXT,

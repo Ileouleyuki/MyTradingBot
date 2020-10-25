@@ -19,7 +19,7 @@ sys.path.append(os.path.dirname(__file__))
 
 from lib.xtb import XtbClient    # NOQA # isort:skip
 from models.MarketsModel import MarketsModel   # NOQA # isort:skip
-
+from lib.configuration import Configuration  # NOQA # isort:skip
 
 ######################################################################################################
 # Class SyncMarketsHelpers
@@ -34,9 +34,9 @@ class SyncMarketsHelpers(object):
         Initialisation de l'objet
         """
         # Enregistrement des variables utiles
-        self._type = 'DEMO'
-        self._accId = '11473046'
-        self._mdp = 'Uvzdhwa4crxhud*'
+        self._type = 'DEMO' if Configuration.from_filepath().get_use_demo_account() is True else 'REEL'
+        self._accId = Configuration.from_filepath().get_credentials()[self._type.lower()]['account_id']
+        self._mdp = Configuration.from_filepath().get_credentials()[self._type.lower()]['password']
         # Initialisation des variables necessaires
         self._broker = None
         self._mdl = None

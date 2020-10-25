@@ -16,11 +16,12 @@ from core.Utils import Utils
 from core.Crypt import Crypt
 from core.Exceptions import SqliteAdapterException
 from core.Decorateur import login_required, roles_accepted, csrf_protect
+from lib.configuration import Configuration
 # from models.AuthModel import AuthModel
 from models.AuthUsersModel import AuthUsersModel
 from models.LogWatcherModel import LogWatcherModel
 from models.LogActivityModel import LogActivityModel
-from models.ParamModel import ParamModel
+
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
@@ -231,11 +232,11 @@ def getParam():
     """Parse un fichier de log dans un DataFrame"""
     if request.method == 'POST':
         # Recuperation des infos
-        df = ParamModel().getAll()
+        data = Configuration.from_filepath().json()
         # Cryptage des id
-        df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
+        # df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
         # Retour du message
-        return Render.jsonTemplate(_OPERATION, 'Parametres', categorie="SUCCESS", data=df.to_dict("Records"))
+        return Render.jsonTemplate(_OPERATION, 'Parametres', categorie="SUCCESS", data=data)
     else:
         abort(400)
 
@@ -248,42 +249,20 @@ def updateParam():
     if request.method == 'POST':
         # Recuperation + traitement des données du formulaire
         data = Utils.parseForm(dict(request.form))
-        # Decryptage des id
-        data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
-        # Traitement en BDD
-        mdl = ParamModel()
-        try:
-            mdl.updateParam(data)
-        except SqliteAdapterException as errorSQL:
-            return Render.jsonTemplate(_OPERATION, 'Modification Parametre Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
-        else:
-            return Render.jsonTemplate(_OPERATION, 'Modification Parametre', categorie="SUCCESS")
-    else:
-        abort(400)
-# ----------------------------------------------------------------------------------------------------
-# Chemin POST (XHR) pour ajouter un Utlisateur
-# Ajouter un Utilisateur
-# ----------------------------------------------------------------------------------------------------
-
-
-@api_admin_bp.route('/insertParam', methods=['POST'])
-@login_required
-@roles_accepted("ADMIN")
-@csrf_protect
-def insertParam():
-    if request.method == 'POST':
-        # Recuperation + traitement des données du formulaire
-        data = Utils.parseForm(dict(request.form))
-        print(data)
-        # Decryptage des id
-        # data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
-        # Traitement en BDD
-        mdl = ParamModel()
-        try:
-            mdl.insertParam(data)
-        except SqliteAdapterException as errorSQL:
-            return Render.jsonTemplate(_OPERATION, 'Ajout Parametre Impossible : {}'.format(str(errorSQL)), categorie="ERROR")
-        else:
-            return Render.jsonTemplate(_OPERATION, 'Ajout Parametre', categorie="SUCCESS")
+        # Initialisation de la Config
+        config = Configuration.from_filepath()
+        # Modification de la config
+        if 'time_zone' in data:
+            config.set_time_zone(data['time_zone'])
+        if 'hour_start' in data:
+            config.set_hour_start(data['hour_start'])
+        if 'hour_end' in data:
+            config.set_hour_end(data['hour_end'])
+        if 'filepathCredentials' in data:
+            config.set_filepathCredentials(data['filepathCredentials'])
+        if 'use_demo_account' in data:
+            config.set_use_demo_account(True if data['use_demo_account'] == 'true' else False)
+        # Envoi du message
+        return Render.jsonTemplate(_OPERATION, 'Enregistrement de la Configuration', categorie="SUCCESS")
     else:
         abort(400)

@@ -1,53 +1,27 @@
-import logging
+#!/usr/bin/env python
+# encoding: utf-8
 
-from lib.logger import SQLiteHandler
-
-logger = logging.getLogger('someLoggerNameLikeDebugOrWhatever')
-
-
-def main():
-
-    logger = logging.getLogger('WEBAPP')
-    logger.setLevel(logging.DEBUG)
-
-    # sqlite handler
-    sh = SQLiteHandler(db="test.db")
-    sh.setLevel(logging.DEBUG)
-    logging.getLogger().addHandler(sh)
-
-    # test
-    logging.info('Start')
-    logging.info('End')
-    logging.warning('Some warning')
-    logging.error('Alarma!')
-    logging.debug('Debug')
-    # test
-    logger.info('Start')
-    logger.info('End')
-    logger.warning('Some warning')
-    logger.error('Alarma!')
-    logger.debug('Debug')
-
-    raise Exception("toto")
-
-    """
-    # Create a logging object (after configuring logging)
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(SQLiteHandler('debugLog.sqlite'))
-    # test
-    logger.debug('Test 1')
-    logger.warning('Some warning')
-    logger.error('Alarma!')
-    logger.info('Start')
-    logger.info('End')
-    logger.warning('Some warning')
-    logger.error('Alarma!')
-    logger.debug('Debug')
-    """
+from lib.configuration import Configuration
 
 
+class Param(Configuration):
+
+    def __init__(self):
+        # Initialisation objet parent
+        super().from_filepath()
+
+
+######################################################################################################
+# DEV
+######################################################################################################
 if __name__ == '__main__':
-    try:
-        main()
-    except Exception as e:
-        logger.exception(e)
+    # Recuperation du Fichier de Config
+    config = Configuration.from_filepath()
+    # Essai Lecture + Modification + Lecture (Propriété Existante)
+    # print(config.get_spin_interval())
+    # config.set_spin_interval("ESSAI2")
+    # print(config.get_spin_interval())
+    # Essai Lecture + Modification + Lecture (Propriété Inexistante)
+    # print(config.get_time_zone())
+    config.set_time_zone(True)
+    print(config.get_time_zone())
