@@ -3,20 +3,65 @@
 {# STYLES #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block stylesheets %}
+{{ data.css_resources|indent(4)|safe }}
+
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# CORPS #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block content %}
-    <div class="container-fluid mt-3">
-      <!-- Page Heading -->
-      <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><span class="badge badge-primary" id='symbol'></span>&nbsp&nbsp<span id='description'></span></h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="btn-sync-markets"><i class="fas fa-sync fa-sm text-white-50"></i>&nbspSynchronisation</a>
-      </div>
-      <input type='hidden' id='id' name='id' value="{{data}}">
-      <table id="table" class="table table-striped py-3" style="width:100%"></table>
+<input type='hidden' id='id' name='id' value="{{data.id}}">
+
+<div class="container-fluid mt-3">
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h4 mb-0 text-gray-800"><span class="badge badge-primary" id='symbol'></span>&nbsp&nbsp<span
+        id='description'></span></h1>
+    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link btn-sm active" id="v-pills-info-tab" data-toggle="pill" href="#v-pills-info" role="tab"
+            aria-controls="v-pills-info" aria-selected="true"><i class="fas fa-info-circle"></i>&nbspInformations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn-sm" id="v-pills-graph-tab" data-toggle="pill" href="#v-pills-graph" role="tab"
+            aria-controls="v-pills-graph" aria-selected="false"><i class="far fa-chart-bar"></i>&nbspOHLC</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn-sm" id="v-pills-orders-tab" data-toggle="pill" href="#v-pills-orders" role="tab"
+            aria-controls="v-pills-orders" aria-selected="false"><i class="fab fa-first-order-alt"></i>&nbspOrdres</a>
+        </li>
+      </ul>
     </div>
+  </div>
+  <!-- -------------------------------------------------------- -->
+  <!-- -------------------------------------------------------- -->
+  <!-- -------------------------------------------------------- -->
+  <!-- CONTENU -->
+  <!-- -------------------------------------------------------- -->
+  <!-- -------------------------------------------------------- -->
+  <!-- -------------------------------------------------------- -->
+  <div class="tab-content" id="v-pills-tabContent">
+    <!-- -------------------------------------------------------- -->
+    <!-- INFORMATIONS  -->
+    <!-- -------------------------------------------------------- -->
+    <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel" aria-labelledby="v-pills-info-tab">
+      ESSAIIIIIIIIIIIIIIIIIIIIIIIIIII</div>
+    <!-- -------------------------------------------------------- -->
+    <!-- GRAPHIQUE  -->
+    <!-- -------------------------------------------------------- -->
+    <div class="tab-pane fade" id="v-pills-graph" role="tabpanel" aria-labelledby="v-pills-graph-tab">
+      {{ data.plot_div|safe }}
+    </div>
+    <!-- -------------------------------------------------------- -->
+    <!-- ORDERS  -->
+    <!-- -------------------------------------------------------- -->
+    <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">Orders</div>
+  </div>
+</div>
+<!--/.container-->
+
+
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# JAVASCRIPT #}
@@ -24,35 +69,32 @@
 {% block javascript %}
 
 <script>
-    // =================================================================================
-    // JAVASCRIPT
-    // =================================================================================
-    $(document).ready(function(){
-        //setTimeout(app.stopLoader, config.timeout );
-        load_data()
-        
-    });// -- Fin du document JAVASCRIPT
-
-
-    // =================================================================================
-    // Chargement des Données
-    // =================================================================================
-    function load_data(period){
-        // -- Creation d'un FormData vide
-      var data = {'id': $("input[name=id]").val()};
-      data = helpers.appendCsrfToken(data),
+  // =================================================================================
+  // JAVASCRIPT
+  // =================================================================================
+  $(document).ready(function () {
+    //setTimeout(app.stopLoader, config.timeout );
+    load_data()
+  });// -- Fin du document JAVASCRIPT
+  // =================================================================================
+  // Chargement des Données
+  // =================================================================================
+  function load_data(period) {
+    // -- Creation d'un FormData vide
+    var data = { 'id': $("input[name=id]").val() };
+    data = helpers.appendCsrfToken(data),
 
       // -- Chargement du loader
       app.startLoader('body')
-      // -- Lancement du traitement 
-      $.post("{{ url_for('api.markets.getMarketById') }}", data, function (result) {}, "json")
-      .done(function(msg){ 
+    // -- Lancement du traitement 
+    $.post("{{ url_for('api.markets.getMarketById') }}", data, function (result) { }, "json")
+      .done(function (msg) {
         console.log('done')
         // -- Modification du DOM
         $("#description").html(msg.data.info[0].description)
         $("#symbol").html(msg.data.info[0].symbol)
       })
-      .fail(function(xhr, status, error) {
+      .fail(function (xhr, status, error) {
         console.log('fail')
         notify.error(xhr.responseJSON)
       }).always(function () {
@@ -60,8 +102,10 @@
         // -- Fin du loader
         app.stopLoader('body')
       });;
-    }
+  }
 
-    
-</script>   
+
+</script>
+{{ data.plot_script|indent(4)|safe }}
+{{ data.js_resources|indent(4)|safe }}
 {% endblock %}

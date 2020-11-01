@@ -75,7 +75,6 @@ def getMarketById():
         data = {}
         data["info"] = {}
         data["info"] = df.to_dict("Records")
-        print(data)
         # Retour du message
         return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data)
     else:

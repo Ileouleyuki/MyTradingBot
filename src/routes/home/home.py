@@ -11,16 +11,24 @@ import os
 import logging
 import markdown.extensions.fenced_code
 import markdown
+import numpy as np
 # Flask
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, request, redirect, url_for, jsonify
 # Perso
 from core.Config import cfg
 from core.Render import Render
 from core.Session import Session
 from core.Auth import Auth
 from core.Decorateur import login_required
+
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.resources import INLINE
+from bokeh.models.sources import AjaxDataSource, CustomJS
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
+
+
 
 ######################################################################################################
 # INITIALISATION
@@ -127,11 +135,93 @@ def markets():
 # Page d'edition du Marché
 # ----------------------------------------------------------------------------------------------------
 
+def make_ajax_plot():
+    adapter = CustomJS(code="""
+        const result = {x: [], y: []}
+        const pts = cb_data.response.points
+        for (let i=0; i<pts.length; i++) {
+            result.x.push(pts[i][0])
+            result.y.push(pts[i][1])
+        }
+        return result
+    """)
+    # Definition de la Source AJAX
+    source = AjaxDataSource(
+        data_url=request.url_root + 'data/',
+        polling_interval=1000,
+        adapter=adapter
+    )
+    # Creation de la Figure
+    plot = figure(
+        plot_height=210,
+        sizing_mode='scale_width',
+        # title="Streaming Noisy sin(x) via Ajax"
+    )
+    # Ajout de la Ligne
+    plot.line('x', 'y', source=source)
+    # Styles
+    plot.background_fill_color = "#222222"
+    plot.border_fill_color = "#222222"
+    plot.outline_line_width = 7
+    plot.outline_line_alpha = 0.3
+    plot.outline_line_color = "#222222"
+    # change just some things about the x-grid
+    plot.xgrid.grid_line_color = "#ffffff"
+    plot.xgrid.grid_line_alpha = 0.5
+    plot.xgrid.grid_line_dash = [6, 4]
+    # change just some things about the y-grid
+    plot.ygrid.grid_line_color = "#ffffff"
+    plot.ygrid.grid_line_alpha = 0.5
+    plot.ygrid.grid_line_dash = [6, 4]
+    # change just some things about the x-axis
+    plot.xaxis.axis_label = "Temp"
+    # plot.xaxis.axis_line_width = 3
+    # plot.xaxis.axis_line_color = "red"
+
+    # change just some things about the y-axis
+    plot.yaxis.axis_label = "Pressure"
+    plot.yaxis.major_label_text_color = "#ffffff"
+    # plot.yaxis.major_label_orientation = "vertical"
+
+    # plot.background_fill_alpha = 0.5
+
+    plot.x_range.follow = "end"
+    plot.x_range.follow_interval = 10
+    script, div = components(plot)
+    return script, div
+
+
+x = list(np.arange(0, 6, 0.1))
+y = list(np.sin(x) + np.random.random(len(x)))
+@home_bp.route('/data/', methods=['POST'])
+@login_required
+def data():
+    x.append(x[-1]+0.1)
+    y.append(np.sin(x[-1])+np.random.random())
+    return jsonify(points=list(zip(x, y)))
+
 
 @home_bp.route('/markets/edit/<idCrypt>/')
 @login_required
 def marketsEdit(idCrypt):
-    return Render.htmlTemplate('home/marketEdit.html', data=idCrypt)
+    # Recuperation des ressources statiques Bokeh
+    js_resources = INLINE.render_js()
+    css_resources = INLINE.render_css()
+    # Construction du graphique
+    script, div = make_ajax_plot()
+
+    # Preparation des données de la page
+    data = {
+        'id': idCrypt,
+        # Graphique
+        'plot_div': div,
+        'plot_script': script,
+        'js_resources': js_resources,
+        'css_resources': css_resources
+    }
+    # Renvoi de la page
+    return Render.htmlTemplate('home/marketEdit.html', data=data)
+
 # ----------------------------------------------------------------------------------------------------
 # Chemin GET pour atteindre /perf
 # Page Racine du Site
