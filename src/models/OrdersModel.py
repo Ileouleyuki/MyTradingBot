@@ -97,7 +97,7 @@ class OrdersModel(SqliteAdapter):
                 commission,
                 profit,
                 trim(coalesce(comment, '') || ' ' || customComment) as comment
-                from {TABLE}""".format(
+                from {TABLE} order by open_time desc""".format(
                     TABLE=self.table
                 )
         df = self.getToDataFrame(query, Limit)

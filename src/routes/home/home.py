@@ -141,16 +141,17 @@ def make_ajax_plot():
     adapter = CustomJS(code="""
         const result = {x: [], y: []}
         const pts = cb_data.response.points
-        for (let i=0; i<pts.length; i++) {
+        for (let i=0; i < pts.length; i++) {
             result.x.push(pts[i][0])
             result.y.push(pts[i][1])
         }
         return result
     """)
+    print(url_for('home.data'))
     # Definition de la Source AJAX
     source = AjaxDataSource(
         data_url=request.url_root + 'data/',
-        polling_interval=500,
+        # polling_interval=500,
         adapter=adapter
     )
     # Creation de la Figure
@@ -167,25 +168,23 @@ def make_ajax_plot():
     plot.outline_line_width = 7
     plot.outline_line_alpha = 0.3
     plot.outline_line_color = "#222222"
-    # change just some things about the x-grid
+    # changer juste quelques choses sur la grille x
     plot.xgrid.grid_line_color = "#ffffff"
     plot.xgrid.grid_line_alpha = 0.5
     plot.xgrid.grid_line_dash = [6, 4]
-    # change just some things about the y-grid
+    # changer juste certaines choses sur la grille en y
     plot.ygrid.grid_line_color = "#ffffff"
     plot.ygrid.grid_line_alpha = 0.5
     plot.ygrid.grid_line_dash = [6, 4]
-    # change just some things about the x-axis
+    # changer juste certaines choses sur l'axe des x
     plot.xaxis.axis_label = "Temp"
     # plot.xaxis.axis_line_width = 3
     # plot.xaxis.axis_line_color = "red"
 
-    # change just some things about the y-axis
+    # changer juste certaines choses sur l'axe y
     plot.yaxis.axis_label = "Pressure"
     plot.yaxis.major_label_text_color = "#ffffff"
     # plot.yaxis.major_label_orientation = "vertical"
-
-    # plot.background_fill_alpha = 0.5
 
     plot.x_range.follow = "end"
     plot.x_range.follow_interval = 10
