@@ -112,8 +112,8 @@ def test():
 
 
 # ----------------------------------------------------------------------------------------------------
-# Chemin GET pour atteindre /markets
-# Page des Marchés
+# Chemin GET pour atteindre /markets/{SYMBOL}
+# Page d'edition du Marché
 # ----------------------------------------------------------------------------------------------------
 
 
@@ -122,6 +122,16 @@ def test():
 def markets():
     return Render.htmlTemplate('home/markets.html')
 
+# ----------------------------------------------------------------------------------------------------
+# Chemin GET pour atteindre /markets/{SYMBOL}
+# Page d'edition du Marché
+# ----------------------------------------------------------------------------------------------------
+
+
+@home_bp.route('/markets/edit/<idCrypt>/')
+@login_required
+def marketsEdit(idCrypt):
+    return Render.htmlTemplate('home/marketEdit.html', data=idCrypt)
 # ----------------------------------------------------------------------------------------------------
 # Chemin GET pour atteindre /perf
 # Page Racine du Site

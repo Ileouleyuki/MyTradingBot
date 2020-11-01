@@ -145,6 +145,7 @@
                 { "title": "TIME", "data": "time", index: 8 },
                 { "title": "BID", "data": "bid", index: 9 },
                 { "title": "ASK", "data": "ask", index: 10 },
+                { "title": "ACTIONS", "data": null }
 
                 
                 //{ "title": "ACTIONS", "data": null }
@@ -195,6 +196,13 @@
                 { "type": "html", "targets": [10], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
 
                 // -- Formatage de la colonne ACTION
+                {
+                    "targets": [-1], "data": null, className: 'text-center', render: function (data, type, row, meta) {
+                        return '<a class="btn btn-info btn-sm" href="/markets/edit/' + row.id +  '">' +
+                            '<span class="fas fa-key"></span>' +
+                            '</a>';
+                    }
+                }
                 /*
                 {
                     "targets": [-1], "data": null, className: 'text-center', render: function (data, type, row, meta) {

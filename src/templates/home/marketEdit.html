@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# STYLES #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block stylesheets %}
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# CORPS #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block content %}
+    <div class="container-fluid mt-3">
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-search-dollar"></i>&nbspEdition&nbsp
+          <span id="SpanTotalGlobale" class="badge badge-dark">0</span></h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="btn-sync-markets"><i class="fas fa-sync fa-sm text-white-50"></i>&nbspSynchronisation</a>
+      </div>
+      <table id="table" class="table table-striped py-3" style="width:100%"></table>
+    </div>
+{% endblock %}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{# JAVASCRIPT #}
+{# ------------------------------------------------------------------------------------------------------------------------------------------- #}
+{% block javascript %}
+
+<script>
+    // =================================================================================
+    // JAVASCRIPT
+    // =================================================================================
+    $(document).ready(function(){
+        //setTimeout(app.stopLoader, config.timeout );
+        load_data()
+        
+    });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // Clique sur Synchronisation (PROGRESSION)
+    // =================================================================================
+    $("#btn-sync-markets").click(function () {
+        // -- Creation d'un FormData vide
+        var data = {};
+        // -- Lancement du traitement (Pas de modal)
+        ajaxSSE.send("{{ url_for('api.markets.SyncMarkets') }}", data, null)
+    });
+
+    // =================================================================================
+    // Chargement des Données
+    // =================================================================================
+    function load_data(period){
+        // -- Creation d'un FormData vide
+      var data = {'period':period};
+      data = helpers.appendCsrfToken(data),
+
+      // -- Chargement du loader
+      app.startLoader('body')
+      // -- Lancement du traitement 
+      $.post("{{ url_for('api.markets.getMarketById') }}", data, function (result) {}, "json")
+      .done(function(msg){ 
+        console.log('done')
+        // -- Modification du DOM
+        
+      })
+      .fail(function(xhr, status, error) {
+        console.log('fail')
+        notify.error(xhr.responseJSON)
+      }).always(function () {
+        console.log('always')
+        // -- Fin du loader
+        app.stopLoader('body')
+      });;
+    }
+
+    
+</script>   
+{% endblock %}

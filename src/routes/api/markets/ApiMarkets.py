@@ -16,6 +16,7 @@ from core.Session import Session
 from core.Config import cfg
 # from core.Exceptions import AppException
 from core.Render import Render
+from core.Crypt import Crypt
 from core.Decorateur import csrf_protect, login_required
 from models.MarketsModel import MarketsModel
 from middleware.SyncMarketsHelpers import SyncMarketsHelpers
@@ -47,10 +48,36 @@ def getAll():
     if request.method == 'POST':
         # Recuperation des infos
         data = MarketsModel().getAll()
+        # Cryptage des id
+        data["id"] = data.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
         # Retour du message
         return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data.to_dict("records"))
     else:
         abort(400)
+
+# ----------------------------------------------------------------------------------------------------
+# Chemin GET pour atteindre /markets/edit/{symbols}
+# Page des Marchés
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_markets_bp.route('/markets/edit', methods=['POST'])
+@login_required
+def getMarketById(idCrypt):
+    if request.method == 'POST':
+        # Decryptage id
+        idDecrypt = Crypt.decode(cfg._APP_SECRET_KEY, idCrypt)
+        # Recuperation des infos
+        df = MarketsModel().getMarketById(idDecrypt)
+        data = {}
+        data["info"] = {}
+        data["info"] = df.to_dict("Record")
+        # Retour du message
+        return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data)
+    else:
+        abort(400)
+
+    return Render.htmlTemplate('home/marketEdit.html')
 # ----------------------------------------------------------------------------------------------------
 # Chemin pour Synchroniser les Marchés chez le Broker
 # Page Racine du Site

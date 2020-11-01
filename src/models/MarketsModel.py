@@ -318,3 +318,11 @@ class MarketsModel(SqliteAdapter):
         # logging.getLogger().info(sqlite3.sqlite_version)
         ret = self.query(query)
         return ret
+
+    def getMarketById(self, id=None):
+        query = """SELECT * from {TABLE} WHERE id = '{ID}' ;""".format(TABLE=self.table, ID=id)
+
+        df = self.getToDataFrame(query)
+        if df is None or df.empty:
+            return None
+        return df
