@@ -11,10 +11,10 @@
     <div class="container-fluid mt-3">
       <!-- Page Heading -->
       <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-search-dollar"></i>&nbspEdition&nbsp
-          <span id="SpanTotalGlobale" class="badge badge-dark">0</span></h1>
+        <h1 class="h3 mb-0 text-gray-800"><span class="badge badge-primary" id='symbol'></span>&nbsp&nbsp<span id='description'></span></h1>
         <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="btn-sync-markets"><i class="fas fa-sync fa-sm text-white-50"></i>&nbspSynchronisation</a>
       </div>
+      <input type='hidden' id='id' name='id' value="{{data}}">
       <table id="table" class="table table-striped py-3" style="width:100%"></table>
     </div>
 {% endblock %}
@@ -32,22 +32,14 @@
         load_data()
         
     });// -- Fin du document JAVASCRIPT
-    // =================================================================================
-    // Clique sur Synchronisation (PROGRESSION)
-    // =================================================================================
-    $("#btn-sync-markets").click(function () {
-        // -- Creation d'un FormData vide
-        var data = {};
-        // -- Lancement du traitement (Pas de modal)
-        ajaxSSE.send("{{ url_for('api.markets.SyncMarkets') }}", data, null)
-    });
+
 
     // =================================================================================
     // Chargement des Données
     // =================================================================================
     function load_data(period){
         // -- Creation d'un FormData vide
-      var data = {'period':period};
+      var data = {'id': $("input[name=id]").val()};
       data = helpers.appendCsrfToken(data),
 
       // -- Chargement du loader
@@ -57,7 +49,8 @@
       .done(function(msg){ 
         console.log('done')
         // -- Modification du DOM
-        
+        $("#description").html(msg.data.info[0].description)
+        $("#symbol").html(msg.data.info[0].symbol)
       })
       .fail(function(xhr, status, error) {
         console.log('fail')

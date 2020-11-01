@@ -17,6 +17,7 @@ from core.Config import cfg
 # from core.Exceptions import AppException
 from core.Render import Render
 from core.Crypt import Crypt
+from core.Utils import Utils
 from core.Decorateur import csrf_protect, login_required
 from models.MarketsModel import MarketsModel
 from middleware.SyncMarketsHelpers import SyncMarketsHelpers
@@ -63,15 +64,18 @@ def getAll():
 
 @api_markets_bp.route('/markets/edit', methods=['POST'])
 @login_required
-def getMarketById(idCrypt):
+def getMarketById():
     if request.method == 'POST':
+        # Recuperation + traitement des données du formulaire
+        data = Utils.parseForm(dict(request.form))
         # Decryptage id
-        idDecrypt = Crypt.decode(cfg._APP_SECRET_KEY, idCrypt)
+        idDecrypt = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
         # Recuperation des infos
         df = MarketsModel().getMarketById(idDecrypt)
         data = {}
         data["info"] = {}
-        data["info"] = df.to_dict("Record")
+        data["info"] = df.to_dict("Records")
+        print(data)
         # Retour du message
         return Render.jsonTemplate(_OPERATION, 'Marchés', categorie="SUCCESS", data=data)
     else:
