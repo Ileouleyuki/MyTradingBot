@@ -20,7 +20,7 @@ from core.Crypt import Crypt
 from core.Utils import Utils
 from core.Decorateur import csrf_protect, login_required
 from models.MarketsModel import MarketsModel
-from middleware.SyncMarketsHelpers import SyncMarketsHelpers
+from helpers.SyncMarketsHelpers import SyncMarketsHelpers
 
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)

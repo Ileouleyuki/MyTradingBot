@@ -28,7 +28,8 @@ from bokeh.models.sources import AjaxDataSource, CustomJS
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
-
+x = list(np.arange(0, 6, 0.1))
+y = list(np.sin(x) + np.random.random(len(x)))
 
 ######################################################################################################
 # INITIALISATION
@@ -135,6 +136,7 @@ def markets():
 # Page d'edition du Marché
 # ----------------------------------------------------------------------------------------------------
 
+
 def make_ajax_plot():
     adapter = CustomJS(code="""
         const result = {x: [], y: []}
@@ -148,7 +150,7 @@ def make_ajax_plot():
     # Definition de la Source AJAX
     source = AjaxDataSource(
         data_url=request.url_root + 'data/',
-        polling_interval=1000,
+        polling_interval=500,
         adapter=adapter
     )
     # Creation de la Figure
@@ -191,8 +193,6 @@ def make_ajax_plot():
     return script, div
 
 
-x = list(np.arange(0, 6, 0.1))
-y = list(np.sin(x) + np.random.random(len(x)))
 @home_bp.route('/data/', methods=['POST'])
 @login_required
 def data():
@@ -221,6 +221,7 @@ def marketsEdit(idCrypt):
     }
     # Renvoi de la page
     return Render.htmlTemplate('home/marketEdit.html', data=data)
+
 
 # ----------------------------------------------------------------------------------------------------
 # Chemin GET pour atteindre /perf

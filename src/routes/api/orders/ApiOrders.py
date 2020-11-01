@@ -19,7 +19,7 @@ from core.Render import Render
 from core.Decorateur import csrf_protect, login_required
 from core.Utils import Utils
 from models.OrdersModel import OrdersModel
-from middleware.SyncOrdersHelpers import SyncOrdersHelpers
+from helpers.SyncOrdersHelpers import SyncOrdersHelpers
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
