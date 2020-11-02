@@ -65,10 +65,11 @@ class DashBoard(object):
         # Formatage des Dates de Bornage
         self._end = end.replace(hour=23, minute=59, second=59, microsecond=0)
         self._start = start.replace(hour=0, minute=0, second=0, microsecond=0)
-        logger.info("[DASHBOARD] {:<12} : {}".format("Date DEBUT", start.strftime('%a %d %b %Y %H:%M:%S')))
-        logger.info("[DASHBOARD] {:<12} : {}".format("Date FIN", end.strftime('%a %d %b %Y %H:%M:%S')))
-        end = int(end.timestamp() * 1000)
-        start = int(start.timestamp() * 1000)
+
+        logger.info("[DASHBOARD] {:<12} : {}".format("Date DEBUT", self._start.strftime('%a %d %b %Y %H:%M:%S')))
+        logger.info("[DASHBOARD] {:<12} : {}".format("Date FIN", self._end.strftime('%a %d %b %Y %H:%M:%S')))
+        end = int(self._end.timestamp() * 1000)
+        start = int(self._start.timestamp() * 1000)
 
         # Filtrage des Ordres
         self._orders = self._orders[((self._orders['open_time'] > start) & (self._orders['open_time'] < end))]
@@ -78,7 +79,7 @@ class DashBoard(object):
         if self._period.upper() == 'DAILY':
             return datetime.datetime.now().strftime('%a %d %b %Y')
         elif self._period.upper() == 'WEEKLY':
-            return datetime.datetime.now().strftime('S%W')
+            return datetime.datetime.now().strftime('S%V')
         elif self._period.upper() == 'MONTHLY':
             return datetime.datetime.now().strftime('%b')
         elif self._period.upper() == 'YEAR':
