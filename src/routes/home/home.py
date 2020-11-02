@@ -19,6 +19,8 @@ from core.Render import Render
 from core.Session import Session
 from core.Auth import Auth
 from core.Decorateur import login_required
+from core.Crypt import Crypt
+from models.MarketsModel import MarketsModel
 
 from lib.strategie.factory import StgyFactory
 
@@ -142,8 +144,12 @@ def marketsEdit(idCrypt):
     css_resources = INLINE.render_css()
     # Creation de la Strategie
     stgyObj = StgyFactory("DEV").make()
+    # Decryptage id
+    idDecrypt = Crypt.decode(cfg._APP_SECRET_KEY, idCrypt)
+    # Recuperation des infos
+    data = MarketsModel().getMarketById(idDecrypt).to_dict('Records')
     # Recuperation des prix
-    stgyObj.fetch_data_prices(symbol='EURUSD', ut='H1')
+    stgyObj.fetch_data_prices(symbol=data[0]['symbol'], ut='H1')
     # Recuperation des prix
     script, div = components(stgyObj.plot())
 

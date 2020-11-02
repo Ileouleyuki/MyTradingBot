@@ -195,8 +195,7 @@ class SqliteAdapter:
 
         # Jointure de la chaine de caractere
         query += ", ".join(map(str, fields))
-        import datetime
-        query += ", updated_at_utc = " + str(int(datetime.datetime.utcnow().timestamp() * 1000))
+        query += ", updated_at_utc = CURRENT_TIMESTAMP"
         # Ajout de la condition de mise à jour
         query += " WHERE id = {ID}".format(ID=data["id"])
         print(query)

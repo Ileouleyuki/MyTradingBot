@@ -69,8 +69,8 @@ initial_sql = """CREATE TABLE IF NOT EXISTS {TABLE}(
                     "currencyPair"	TEXT,
                     "shortSelling"	TEXT,
                     "timeString"	TEXT,
-                    created_at_utc TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
-                    updated_at_utc TIMESTAMP(6),
+                    created_at_utc TIMESTAMP(13) DEFAULT CURRENT_TIMESTAMP,
+                    updated_at_utc TIMESTAMP(13),
                     UNIQUE(symbol)
                 )"""
 ######################################################################################################
