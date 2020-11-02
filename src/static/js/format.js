@@ -161,8 +161,8 @@ var formatDt = {
             }
             console.log(config.timeZone)
             // Definiation du TimeZone
-            // var DATE_VAL = moment(data).tz(config.timeZone);
-            var DATE_VAL = moment.utc(data).tz(config.timeZone)
+            //var DATE_VAL = moment(data).tz(config.timeZone);
+            var DATE_VAL = moment.utc(data) // .tz(config.timeZone)
             //console.log("DIFFERENCE >> " + moment().diff(DATE_VAL, 'days'));
             return DATE_VAL.format("ddd DD MMM YYYY HH:mm:ss");
         }

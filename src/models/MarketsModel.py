@@ -326,3 +326,10 @@ class MarketsModel(SqliteAdapter):
         if df is None or df.empty:
             return None
         return df
+
+    def update(self, data):
+        # Construction de la requete
+        query = self.updateQuery(self.table, data)
+        # Execution
+        ret = self.query(query)
+        return ret

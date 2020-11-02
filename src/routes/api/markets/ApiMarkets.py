@@ -25,13 +25,12 @@ from helpers.SyncMarketsHelpers import SyncMarketsHelpers
 # Logger
 logger = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 
-
 ######################################################################################################
 # INITIALISATION
 ######################################################################################################
 api_markets_bp = Blueprint('api.markets', __name__)
 
-_OPERATION = "TEST"
+_OPERATION = "MARCHES"
 ######################################################################################################
 # URLS
 ######################################################################################################
@@ -80,7 +79,27 @@ def getMarketById():
     else:
         abort(400)
 
-    return Render.htmlTemplate('home/marketEdit.html')
+# ----------------------------------------------------------------------------------------------------
+# Chemin GET pour atteindre /markets/edit/{symbols}
+# Page des Marchés
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_markets_bp.route('/markets/updateById', methods=['POST'])
+@login_required
+def updateById():
+    if request.method == 'POST':
+        # Recuperation + traitement des données du formulaire
+        data = Utils.parseForm(dict(request.form))
+        # Decryptage id
+        data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
+        # Recuperation des infos
+        MarketsModel().update(data)
+        # Retour du message
+        return Render.jsonTemplate(_OPERATION, 'Changement du Statut', categorie="SUCCESS")
+    else:
+        abort(400)
+
 # ----------------------------------------------------------------------------------------------------
 # Chemin pour Synchroniser les Marchés chez le Broker
 # Page Racine du Site

@@ -15,8 +15,11 @@
 <div class="container-fluid mt-3">
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h4 mb-0 text-gray-800"><span class="badge badge-primary" id='symbol'></span>&nbsp&nbsp<span
-        id='description'></span></h1>
+    <h1 class="h4 mb-0 text-gray-800">
+      <span class="badge badge-primary" id='symbol'></span>&nbsp&nbsp
+      <span id='description'></span>&nbsp&nbsp
+      <button type="button" class="btn btn-outline-warning btn-sm" id="tradeable">???</button>
+    </h1>
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
       <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
         <li class="nav-item">
@@ -46,7 +49,122 @@
     <!-- INFORMATIONS  -->
     <!-- -------------------------------------------------------- -->
     <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel" aria-labelledby="v-pills-info-tab">
-      ESSAIIIIIIIIIIIIIIIIIIIIIIIIIII</div>
+      <p class="lead">
+        Le marché a été crée le <u><span id='created_at_utc'></span></u> et modifié le <u><span id='updated_at_utc'></span></u>       
+      </p>
+
+      <div class="row">
+        <!-- Card du Portefeuille-->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-toolbox"></i>&nbspGroupement
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col font-weight-bold">Categorie</div>
+                <div class="col text-right"> 
+                  <span id='categoryName'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Groupe</div>
+                <div class="col text-right"> 
+                  <span id='groupName'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Monnaie</div>
+                <div class="col text-right"> 
+                  <span id='currency'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Monnaie (Profit)</div>
+                <div class="col text-right"> 
+                  <span id='currencyProfit'></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card des Signaux-->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-toolbox"></i>&nbspContrats
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col font-weight-bold">Taille de Contrat</div>
+                <div class="col text-right"> 
+                  <span id='contractSize'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Leverage</div>
+                <div class="col text-right"> 
+                  <span id='leverage'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Minimum</div>
+                <div class="col text-right"> 
+                  <span id='lotMin'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Maximum</div>
+                <div class="col text-right"> 
+                  <span id='lotMax'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Incrément</div>
+                <div class="col text-right"> 
+                  <span id='lotStep'></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Card des Portefeuille-->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <i class="fas fa-toolbox"></i>&nbspPortefeuille
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col font-weight-bold">Pips (Precision)</div>
+                <div class="col text-right"> 
+                  <span id='pipsPrecision'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">Precision</div>
+                <div class="col text-right"> 
+                  <span id='precision'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">tickSize</div>
+                <div class="col text-right"> 
+                  <span id='tickSize'></span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col font-weight-bold">tickValue</div>
+                <div class="col text-right"> 
+                  <span id='tickValue'></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- // Fin de la Ligne -->
+      <br>
+    </div>
     <!-- -------------------------------------------------------- -->
     <!-- GRAPHIQUE  -->
     <!-- -------------------------------------------------------- -->
@@ -68,6 +186,7 @@
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block javascript %}
 
+<script src="{{url_for('static', filename='js/format.js')}} "></script>
 <script>
   // =================================================================================
   // JAVASCRIPT
@@ -77,15 +196,30 @@
     load_data()
   });// -- Fin du document JAVASCRIPT
   // =================================================================================
+  // Clique sur Dashboard (Hebdomadaire)
+  // =================================================================================
+  $("#tradeable").click(function () {
+      var $this = $(this);
+
+      // -- Recuperation des données du Formulaire
+      ($this.html() == 'Actif') ? trade = 0 : trade = 1 
+      params = {
+        "id": $("input[name=id]").val(),
+        "trade": trade
+      }
+      // -- Verification si id est saisie, si oui : UPDATE
+      ajax.send("{{ url_for('api.markets.updateById') }}", params, "load_data()")
+  });
+
+  // =================================================================================
   // Chargement des Données
   // =================================================================================
   function load_data(period) {
     // -- Creation d'un FormData vide
     var data = { 'id': $("input[name=id]").val() };
     data = helpers.appendCsrfToken(data),
-
-      // -- Chargement du loader
-      app.startLoader('body')
+    // -- Chargement du loader
+    app.startLoader('body')
     // -- Lancement du traitement 
     $.post("{{ url_for('api.markets.getMarketById') }}", data, function (result) { }, "json")
       .done(function (msg) {
@@ -93,6 +227,32 @@
         // -- Modification du DOM
         $("#description").html(msg.data.info[0].description)
         $("#symbol").html(msg.data.info[0].symbol)
+        $("#created_at_utc").html(formatDt.TimestampBasicFormatter(msg.data.info[0].created_at_utc, 'display', null)) 
+        $("#updated_at_utc").html(formatDt.TimestampBasicFormatter(msg.data.info[0].updated_at_utc, 'display', null)) 
+        // roupement
+        $("#categoryName").html(msg.data.info[0].categoryName)
+        $("#currency").html(msg.data.info[0].currency)
+        $("#currencyProfit").html(msg.data.info[0].currencyProfit)
+        $("#groupName").html(msg.data.info[0].groupName)
+        // Contract
+        $("#contractSize").html(msg.data.info[0].contractSize)
+        $("#leverage").html(msg.data.info[0].leverage)
+        $("#lotMax").html(msg.data.info[0].lotMax)
+        $("#lotMin").html(msg.data.info[0].lotMin)
+        $("#lotStep").html(msg.data.info[0].lotStep)
+        // 
+        $("#pipsPrecision").html(msg.data.info[0].pipsPrecision)
+        $("#precision").html(msg.data.info[0].precision)
+        $("#tickSize").html(msg.data.info[0].tickSize)
+        $("#tickValue").html(msg.data.info[0].tickValue)
+
+        if(msg.data.info[0].trade == 0){
+          $("#tradeable").removeClass().addClass('btn btn-outline-danger btn-sm')
+          $("#tradeable").html('Inactif')
+        }else if(msg.data.info[0].trade == 1){
+          $("#tradeable").removeClass().addClass('btn btn-outline-success btn-sm')
+          $("#tradeable").html('Actif')
+        }
       })
       .fail(function (xhr, status, error) {
         console.log('fail')
