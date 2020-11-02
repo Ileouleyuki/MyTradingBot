@@ -158,3 +158,16 @@ class Configuration(object):
     def get_credentials(self) -> CredentialDict:
         with Path(self.get_credentials_filepath()).open(mode="r") as f:
             return json.load(f)
+
+    ######################################################################################################
+    # STRATEGIES
+    ######################################################################################################
+
+    def get_active_strategy(self):
+        return self._find_property(["strategies", "active"])
+
+    def get_param_strategy(self, name):
+        return self._find_property(["strategies", name])
+
+    def get_values_strategy(self):
+        return self._find_property(["strategies", "values"])

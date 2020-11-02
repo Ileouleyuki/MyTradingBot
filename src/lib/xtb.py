@@ -17,10 +17,10 @@ import datetime
 from websocket import create_connection
 from websocket._exceptions import WebSocketConnectionClosedException
 from core.Utils import Utils
-#from ...utils import Utils
-#from ...configuration import Configuration
-#from ...exceptions import NotLoggedException, TransactionRejected, UnreachableException
-#from ...interfaces import Position
+# from ...utils import Utils
+# from ...configuration import Configuration
+from lib.exceptions import NotLoggedException, TransactionRejected, UnreachableException
+# from ...interfaces import Position
 
 
 LOGIN_TIMEOUT = 120

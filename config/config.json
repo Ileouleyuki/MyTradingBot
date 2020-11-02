@@ -8,5 +8,21 @@
         "hour_end": "18:30",
         "hour_start": "08:30",
         "time_zone": "Europe/Paris"
+    },
+    "strategies": {
+        "active": "DEV",
+        "values": [
+            "DEV"
+        ],
+        "DEV":{
+            "main_ut": "M15",
+            "stop_lvl": 15,
+            "ratio": 2.0,
+            "nb_candles": 50,
+            "conversion_line_period":9,
+            "base_line_periods":26,
+            "laggin_span":52,
+            "displacement":26
+        }
     }
 }
