@@ -171,7 +171,11 @@
                 // -- Formatage du Champ LIBELLE
                 { "type": "html", "targets": [5], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
                 // -- Formatage du Champ TRADE
-                { "type": "html", "targets": [6], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                { "type": "html", "targets": [6], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                        return formatDt.Boolean(data, type, row)
+                    }
+                },
                 /*
                 {
                     "type": "html", "targets": [6], "visible": true, "searchable": true, className: 'text-center', defaultContent: "",
@@ -181,13 +185,13 @@
                 },
                 */
                 // -- Formatage du Champ BACKTEST
-                { "type": "html", "targets": [7], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                { "type": "html", "targets": [7], "visible": false, "searchable": false, className: 'text-center', defaultContent: "" },
                 
                 // -- Formatage du Champ TIME
                 { "type": "html", "targets": [8], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
-                  render: function (data, type, row, meta) {
+                    render: function (data, type, row, meta) {
                         return formatDt.TimestampBasicFormatter(data, type, row)
-                  }
+                    }
                 },
                 // -- Formatage du Champ BID
                 { "type": "html", "targets": [9], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
@@ -227,10 +231,9 @@
     function finishload() {
         // -- Filtrage des informations
         yadcf.init(table, [
-            // Filtre sur SIGNAL
-            /*
+            // Filtre sur CAT
             {
-               column_number: 3, filter_reset_button_text: false, style_class: "custom-select",
+               column_number: 2, filter_reset_button_text: false, style_class: "custom-select",
                filter_type: 'select',
                data: [{
                   value: ' ',
@@ -240,7 +243,18 @@
                filter_match_mode: 'exact',
                filter_default_label: "Tous"
             },
-            */
+            // Filtre sur GROUPE
+            {
+               column_number: 4, filter_reset_button_text: false, style_class: "custom-select",
+               filter_type: 'select',
+               data: [{
+                  value: ' ',
+                  label: 'Vides'
+               }],
+               append_data_to_table_data: 'before',
+               filter_match_mode: 'exact',
+               filter_default_label: "Tous"
+            },
         ])
 
 

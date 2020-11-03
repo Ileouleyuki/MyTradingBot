@@ -25,10 +25,10 @@ class StrategieDev(StrategieInterface):
         ====================================================================
         """
         objGraph = OhlcGraph(prices=self.prices.tail(300))
-        objGraph.ohlc(height=730)
+        objGraph.ohlc(height=600)
         # objGraph.addSignals()
         # objGraph.addVolume(height=100)
         # Ajout Indicateurs
         # objGraph.addBBANDS()
         # objGraph.addRSI(self._RSI_LIMIT_OVER_SELL,  self._RSI_LIMIT_OVER_BUY, height=200)
-        return objGraph.save()
+        return objGraph

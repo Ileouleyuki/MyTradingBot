@@ -32,7 +32,7 @@ initial_sql = """CREATE TABLE IF NOT EXISTS {TABLE}(
                     "pipsPrecision"	INTEGER,
                     "contractSize"	INTEGER,
                     "exemode"	INTEGER,
-                    "time"	TEXT,
+                    "time"	TIMESTAMP(13),
                     "expiration"	TEXT,
                     "stopsLevel"	INTEGER,
                     "precision"	INTEGER,
@@ -102,7 +102,7 @@ class MarketsModel(SqliteAdapter):
         """
         Retourne toutes les entrées de la table
         """
-        query = """SELECT * from {TABLE}""".format(
+        query = """SELECT * from {TABLE} order by trade desc""".format(
                 TABLE=self.table
             )
         df = self.getToDataFrame(query, Limit)

@@ -151,7 +151,7 @@ def marketsEdit(idCrypt):
     # Recuperation des prix
     stgyObj.fetch_data_prices(symbol=data[0]['symbol'], ut='H1')
     # Recuperation des prix
-    script, div = components(stgyObj.plot())
+    script, div = components(stgyObj.plot().save())
 
     # Preparation des données de la page
     data = {

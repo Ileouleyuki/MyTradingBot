@@ -55,6 +55,31 @@ def getAll():
         abort(400)
 
 # ----------------------------------------------------------------------------------------------------
+# Chemin pour recuperer les Ordres en BDD à partir du Symbole
+# Tous les Ordres passés sur le Marché
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_orders_bp.route('/getOrdersBySymbol', methods=['POST'])
+@login_required
+@csrf_protect
+def getOrdersBySymbol():
+    """Parse un fichier de log dans un DataFrame"""
+    if request.method == 'POST':
+        # Recuperation + traitement des données du formulaire
+        data = Utils.parseForm(dict(request.form))
+        # Recuperation des infos
+        data = OrdersModel().getOrdersBySymbol(symbol=data['symbol'])
+        # Formatage des Delais
+        data['delai'] = data['delai'].apply(Utils.formatSeconds)
+        # df["id"] = df.apply(lambda x: Crypt.encode(cfg._APP_SECRET_KEY, x['id']), axis=1)
+        # Retour du message
+        return Render.jsonTemplate(_OPERATION, 'Ordres', categorie="SUCCESS", data=data.to_dict("records"))
+    else:
+        abort(400)
+
+
+# ----------------------------------------------------------------------------------------------------
 # Chemin pour Synchroniser les Ordres chez le Broker
 # Page Racine du Site
 # ----------------------------------------------------------------------------------------------------

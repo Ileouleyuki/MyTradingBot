@@ -3,8 +3,14 @@
 {# STYLES #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block stylesheets %}
+<!-- DataTables + YADCF Filters -->
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.css')}}" rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/css/buttons.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/css/fixedHeader.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/css/colReorder.bootstrap4.min.css')}} " rel="stylesheet">
+<link href="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/css/rowGroup.bootstrap4.min.css')}} " rel="stylesheet">
+<!-- BOKEH -->
 {{ data.css_resources|indent(4)|safe }}
-
 {% endblock %}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {# CORPS #}
@@ -174,7 +180,9 @@
     <!-- -------------------------------------------------------- -->
     <!-- ORDERS  -->
     <!-- -------------------------------------------------------- -->
-    <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">Orders</div>
+    <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">
+      <table id="table" class="table table-striped py-3" style="width:100%"></table>
+    </div>
   </div>
 </div>
 <!--/.container-->
@@ -185,8 +193,26 @@
 {# JAVASCRIPT #}
 {# ------------------------------------------------------------------------------------------------------------------------------------------- #}
 {% block javascript %}
-
+<!-- JS - DataTables + YADCF (Filters) -->
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/datatables.min.js')}}"></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedColumns-3.3.0/js/fixedColumns.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/dataTables.buttons.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/JSZip-2.5.0/jszip.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/pdfmake.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/pdfmake-0.1.36/vfs_fonts.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.html5.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.print.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/Buttons-1.6.1/js/buttons.colVis.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/ColReorder-1.5.2/js/dataTables.colReorder.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/FixedHeader-3.1.6/js/dataTables.fixedHeader.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/datatables/1.10.20/RowGroup-1.1.1/js/rowGroup.bootstrap4.min.js')}} "></script>
+<script src="{{url_for('static', filename='assets/yadcf/0.9.3/jquery.dataTables.yadcf.js')}} "></script>
+<script src="{{url_for('static', filename='js/app_dt_default.js')}} "></script>
 <script src="{{url_for('static', filename='js/format.js')}} "></script>
+<!-- BOKEH -->
+{{ data.plot_script|indent(4)|safe }}
+{{ data.js_resources|indent(4)|safe }}
 <script>
   // =================================================================================
   // JAVASCRIPT
@@ -194,6 +220,7 @@
   $(document).ready(function () {
     //setTimeout(app.stopLoader, config.timeout );
     load_data()
+    
   });// -- Fin du document JAVASCRIPT
   // =================================================================================
   // Clique sur Dashboard (Hebdomadaire)
@@ -253,6 +280,7 @@
           $("#tradeable").removeClass().addClass('btn btn-outline-success btn-sm')
           $("#tradeable").html('Actif')
         }
+        load_data_table()
       })
       .fail(function (xhr, status, error) {
         console.log('fail')
@@ -264,8 +292,173 @@
       });;
   }
 
+  // =================================================================================
+    // -- Chargement du Tableau
+    // =================================================================================
+    function load_data_table() {
+        table = $('#table').DataTable({
+            // -- ------------------ --
+            // -- PARAMETRE GENERAUX
+            // -- ------------------ --
+            "language": {
+                "url": "/static/assets/datatables/French.json"         // Traduction en francais
+            },
+            destroy: true,
+            paging: true, // Pagination
+            pageLength: 10, // Nombre par pages
+            bFilter: true, // Barre de Recherche
+            ordering: false, // Autoriser le Sort.
+            lengthChange: false,
+            responsive:true,
+            info: true, // Information en bas de page
+            fixedHeader: true, // Fixation du Header
+            colReorder: false, // Reordonner les colonnes
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+
+            "ajax": {
+                "url": "{{ url_for('api.orders.getOrdersBySymbol') }}",
+                "data": {
+                    "csrfToken": config.csrfToken,
+                    "symbol": $("#symbol").html()
+                },
+                "dataSrc": function (json) {
+                    if (app.loadTable(json) == true) {
+                        return json.data;
+                    }
+                    // Verification de la reponse
+                    /*
+                    Si mauvaise reponse, 
+                        On arrete le loader
+                        On affiche un message
+                        On stop le traitement
+                    */
+                    return null;
+                },
+                error: function (xhr, error, code) {
+                    notify.error(xhr.responseJSON)
+                    app.stopLoader()
+                },
+                "type": "POST"
+            },
+            // -- ------------------ --
+            // -- EVENEMENT
+            // -- ------------------ --
+            "drawCallback": function (settings, json) {
+                $('#SpanTotalGlobale').html(settings.aiDisplay.length);
+            },
+            "initComplete": function (settings, json) {
+                $('#table').DataTable().buttons().container().appendTo('#table_wrapper .col-md-6:eq(0)');
+                //$('#table thead').addClass('thead-dark');
+                finishload();
+            },
+            // -- ------------------ --
+            // -- APPEL AJAX
+            // -- ------------------ --
+            //symbol,-- orders.order,open_time,close_time,-- delai,open_price,close_price,spread,timestamp,volume,sl,tp,margin_rate,commission,profit,-- type,storage,closed,comment,customComment
+            "columns": [
+                { "title": "ID", "data": "id", index: 0 },
+                { "title": "EVAL", "data": null, index:1 },
+                { "title": "SYMBOL", "data": "symbol", index: 2 },
+                { "title": "SENS", "data": null, index:3 },
+                { "title": "OUVERTURE", "data": "open_time", index: 4 },
+                { "title": "FERMETURE", "data": "close_time", index: 5 },
+                { "title": "DELAI", "data": "delai", index: 6 },
+                { "title": "OPEN", "data": "open_price", index: 7 },
+                { "title": "SL", "data": "sl", index: 8 },
+                { "title": "TP", "data": "tp", index: 9 },
+                { "title": "CLOSE", "data": "close_price", index: 10 },
+                { "title": "SIZE", "data": "volume", index: 11 },
+                { "title": "COUT", "data": "commission", index: 12 },
+                { "title": "G/P", "data": "profit", index: 13 },
+                { "title": "COMMENTAIRES", "data": "comment", index: 14 },
+                
+
+            ],
+            "order": [[1, "desc"]],
+            "columnDefs": [
+                // -- Formatage du Champ ID
+                { "type": "html", "targets": [0], "visible": false, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ EVAL
+                { "type": "html", "targets": [1], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                            return formatDt.EvalFormatter(data, type, row)
+                    }
+                },
+
+                // -- Formatage du Champ SYMBOL
+                {
+                    "type": "html", "targets": [2], "visible": false, "searchable": true, className: 'text-left text-info font-weight-bold', defaultContent: "",
+                },
+                 // -- Formatage du Champ SENS
+                 {
+                    "type": "html", "targets": [3], "visible": true, "searchable": true, className: 'text-center font-weight-bold', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                            return formatDt.DirectionFormatter(data, type, row)
+                    }
+                },
+                // -- Formatage du Champ OUVERTURE
+                { "type": "html", "targets": [4], "visible": true, "searchable": true, className: 'text-center', defaultContent: "",
+                    render: function (data, type, row, meta) {
+                        return formatDt.TimestampBasicFormatter(data, type, row)
+                    }
+                },
+                // -- Formatage du Champ FERMETURE
+                {
+                    "type": "html", "targets":[5], "visible": true, "searchable": false, className: 'text-center', defaultContent: "",
+                        render: function (data, type, row, meta) {
+                            return formatDt.TimestampBasicFormatter(data, type, row)
+                        }
+                },
+                // -- Formatage du Champ DELAI
+                { "type": "html", "targets": [6], "visible": true, "searchable": true, className: 'text-left', defaultContent: "" },
+                // -- Formatage du Champ OPEN
+                { "type": "html", "targets": [7], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ SL
+                { "type": "html", "targets": [8], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ TP
+                { "type": "html", "targets": [9], "visible": true, "searchable": true, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ CLOSE
+                { "type": "html", "targets": [10], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ SIZE
+                { "type": "html", "targets": [11], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+                // -- Formatage du Champ COUT
+                { "type": "html", "targets": [12], "visible": true, "searchable": false, className: 'text-center text-danger', defaultContent: "" },
+                // -- Formatage du Champ G/P
+                { "type": "html", "targets": [13], "visible": true, "searchable": false, className: 'text-center font-weight-bold', defaultContent: "",
+                
+                    render: function (data, type, row, meta) {
+                            return formatDt.GpFormatter(data, type, row)
+                        }
+                },
+                // -- Formatage du Champ comment
+                { "type": "html", "targets": [14], "visible": true, "searchable": false, className: 'text-center', defaultContent: "" },
+
+                
+                
+                
+
+                // -- Formatage de la colonne ACTION
+                /*
+                {
+                    "targets": [-1], "data": null, className: 'text-center', render: function (data, type, row, meta) {
+                        return '<a class="btn btn-danger btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous supprimer cette Utilisateur ?\', \'action_delete(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-trash-alt"></span>' +
+                            '</a>' +
+                            '<a class="btn btn-warning btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous envoyer un email à cette Utilisateur ?\', \'action_email(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-envelope"></span>' +
+                            '</a>' +
+                            '<a class="btn btn-info btn-sm" onclick="modal.promptYesOrNo(\'Voulez-vous debloquer le compte de cette utilisateur ?\', \'action_deblock(' + meta.row + ')\')" >' +
+                            '<span class="fas fa-key"></span>' +
+                            '</a>';
+                    }
+                }
+                */
+            ],
+        });
+    }
 
 </script>
-{{ data.plot_script|indent(4)|safe }}
-{{ data.js_resources|indent(4)|safe }}
+
 {% endblock %}

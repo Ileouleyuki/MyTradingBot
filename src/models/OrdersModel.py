@@ -102,6 +102,34 @@ class OrdersModel(SqliteAdapter):
                 )
         df = self.getToDataFrame(query, Limit)
         return df
+    
+    def getOrdersBySymbol(self, symbol, Limit=None):
+        """
+        Retourne toutes les entrées de la table
+        """
+        query = """SELECT
+                id,
+                symbol,
+                -- orders.order,
+                open_time,
+                close_time,
+                (close_time - open_time) / 1000 as delai,
+                open_price,
+                close_price,
+                volume,
+                sl,
+                tp,
+                commission,
+                profit,
+                trim(coalesce(comment, '') || ' ' || customComment) as comment
+                from {TABLE}
+                where symbol = '{SYMBOL}'
+                order by open_time desc""".format(
+                    TABLE=self.table,
+                    SYMBOL=symbol
+                )
+        df = self.getToDataFrame(query, Limit)
+        return df
 
     def upsert(self, record, account, type):
         """
