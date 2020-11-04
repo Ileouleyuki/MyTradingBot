@@ -28,12 +28,15 @@ from lib.logger import SQLiteHandler, SQLiteUrlHandler
 # Routes
 from routes.home.home import home_bp
 from routes.admin.admin import admin_bp
+from routes.dev.dev import dev_bp
+from routes.bot.bot import bot_bp
 # API
 from routes.api.test.ApiTest import api_test_bp
 from routes.api.admin.ApiAdmin import api_admin_bp
 from routes.api.markets.ApiMarkets import api_markets_bp
 from routes.api.orders.ApiOrders import api_orders_bp
 from routes.api.dashboard.ApiDashBoard import api_dashboard_bp
+from routes.api.bot.ApiBot import api_bot_bp
 
 loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
 loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
@@ -122,6 +125,8 @@ def register_blueprints(app):
     # Frontend
     app.register_blueprint(home_bp, url_prefix='/')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(dev_bp, url_prefix='/dev')
+    app.register_blueprint(bot_bp, url_prefix='/bot')
 
     # API
     app.register_blueprint(api_test_bp, url_prefix='/test')
@@ -129,6 +134,7 @@ def register_blueprints(app):
     app.register_blueprint(api_markets_bp, url_prefix='/markets')
     app.register_blueprint(api_orders_bp, url_prefix='/orders')
     app.register_blueprint(api_dashboard_bp, url_prefix='/dashboard')
+    app.register_blueprint(api_bot_bp, url_prefix='/bot')
 
 ######################################################################################################
 # ERRORS

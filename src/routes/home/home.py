@@ -20,7 +20,9 @@ from core.Session import Session
 from core.Auth import Auth
 from core.Decorateur import login_required
 from core.Crypt import Crypt
+
 from models.MarketsModel import MarketsModel
+from models.OrdersModel import OrdersModel
 
 from lib.strategie.factory import StgyFactory
 
@@ -149,10 +151,13 @@ def marketsEdit(idCrypt):
     # Recuperation des infos
     data = MarketsModel().getMarketById(idDecrypt).to_dict('Records')
     # Recuperation des prix
-    stgyObj.fetch_data_prices(symbol=data[0]['symbol'], ut='H1')
-    # Recuperation des prix
-    script, div = components(stgyObj.plot().save())
-
+    stgyObj.run(symbol=data[0]['symbol'], ut='H1')
+    # Recuperation des Ordres
+    df_orders = OrdersModel().getOrdersBySymbol(symbol=data[0]['symbol'])
+    # Construction du Graphique avec Ordres
+    graph = stgyObj.plot()
+    graph.addOrders(df_orders)
+    script, div = components(graph.save())
     # Preparation des données de la page
     data = {
         'id': idCrypt,

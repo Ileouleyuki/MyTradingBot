@@ -14,6 +14,7 @@ from core.Config import cfg
 app = create_app()
 
 if __name__ == '__main__':
+    # Demarage de Flask
     app.run(debug=cfg._ENV[cfg._ENVIRONNEMENT]["DEBUG_MODE"])
     # app.run(debug=False)
     logging.getLogger(cfg._LOG_ACTIVITY_NAME).info("Fermeture Application")

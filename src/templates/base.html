@@ -50,13 +50,16 @@
           {% if info.user.is_logged_in is defined and info.user.is_logged_in == True %}
           <!-- -->
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('home.home') }}"><i class="fas fa-search-dollar"></i>&nbspDashBoard</a>
+            <a class="nav-link" href="{{ url_for('home.home') }}"><i class="fas fa-tachometer-alt"></i>&nbspDashBoard</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('home.markets') }}"><i class="fas fa-search-dollar"></i>&nbspMarchés</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('home.orders') }}"><i class="fab fa-first-order"></i>&nbspOrdres</a>
+            <a class="nav-link" href="{{ url_for('home.orders') }}"><i class="fas fa-luggage-cart"></i>&nbspOrdres</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('bot.bot') }}"><i class="fas fa-robot"></i>&nbspRobot</a>
           </li>
           <!--
           <li class="nav-item">
@@ -68,6 +71,15 @@
             <a class="nav-link text-danger" href="{{ url_for('home.test') }}"><i class="fas fa-search-dollar"></i>&nbspTest</a>
           </li>
           {% endif %}
+          {% if info.app.environ == 'DEV' %}
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="{{ url_for('dev.dev') }}"><i class="fas fa-search-dollar"></i>&nbspDev</a>
+          </li>
+          {% endif %}
+
+          
+
+
 
           {% endif %}
         </ul>

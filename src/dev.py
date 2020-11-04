@@ -20,7 +20,7 @@ if __name__ == '__main__':
     print(stgyObj.name)
 
     # Recuperation des prix
-    stgyObj.fetch_data_prices(symbol='EURUSD', ut='H1')
+    stgyObj.run(symbol='EURUSD', ut='H1')
 
     # Affichage des prix
     print(stgyObj.prices)

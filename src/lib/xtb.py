@@ -244,10 +244,11 @@ class XtbClient(object):
         df_data.rename(index=str, columns={'vol': 'volume'}, inplace=True)
         df_data.volume = df_data.volume.astype(np.int64)
         df_data = df_data.round({'open': digits, 'close': digits, 'high': digits, 'low': digits})
-        df_data.index = pd.to_datetime(df_data['ctm'] / 1000, unit='s', utc=True)
+        # df_data.index = pd.to_datetime(df_data['ctm'] / 1000, unit='s', utc=True)
+        df_data = df_data.set_index(['ctm'])
         # df_data.index = df_data.index.tz_convert(self.config.get_time_zone())
         df_data.index.name = "Datetime"
-        df_data.drop(['ctmString', 'ctm'], 1, inplace=True)
+        df_data.drop(['ctmString'], 1, inplace=True)
         df_data = df_data.round(digits)
         # Filtrage
         if ticks > 0:

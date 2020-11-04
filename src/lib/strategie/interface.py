@@ -3,6 +3,7 @@
 import os
 import datetime
 import pandas as pd
+from pandas import DataFrame
 from lib.configuration import Configuration
 from lib.xtb import XtbClient
 from lib.exceptions import UnreachableException
@@ -22,7 +23,39 @@ class StrategieInterface:
         self.config = Configuration.from_filepath()
         # Definition des Parametres
         self.name = name
-        self.prices = None
+        self.__prices = None
+
+    @property
+    def prices(self):
+        """Retourne le DataFame de Prix"""
+        return self.__prices
+
+    @prices.setter
+    def prices(self, value: str):
+        """Definition du dataframe des Prix"""
+        if value is not None and isinstance(value, DataFrame):
+            self.__prices = value
+        else:
+            self.__prices = None
+
+    def reset(self):
+        """RAZ de l'analyse"""
+        self.__prices = None
+
+    def run(self, symbol, ut):
+        """
+        Lancement de l'analyse
+        """
+        # Recuperation des Prix
+        self.fetch_data_prices(symbol=symbol, ut=ut)
+        # Calcul des Indicateurs
+        self.calc()
+        # Definition de la Tendance
+        self.setTrend()
+        # Recherche de Signaux
+        self.find()
+        # Calcul des Positions
+        self.pos()
 
     def fetch_data_prices(self, symbol, ut):
         """
@@ -41,11 +74,11 @@ class StrategieInterface:
         # Chargement du fichier en local si existant
         if os.path.exists(data_full_path):
             prices = pd.read_csv(data_full_path, sep=";", float_precision='round_trip')  # Ouverture du Fichier
-            prices['Datetime'] = pd.to_datetime(prices['Datetime'], utc=False)           # Formatage des Dates
+            # prices['Datetime'] = pd.to_datetime(prices['Datetime'], utc=False)           # Formatage des Dates
             prices = prices.set_index(['Datetime'])                                      # Definition DatetimeIndex
         else:
             prices = pd.DataFrame(
-                index=pd.to_datetime([], utc=True),
+                # index=pd.to_datetime([], utc=True),
                 columns=['open', 'high', 'low', 'close', 'volume']
             )
             prices.index.name = 'Datetime'
@@ -95,20 +128,34 @@ class StrategieInterface:
             updated_prices.sort_index(inplace=True)
             # Mise à jour des prix
             prices = updated_prices.copy(deep=True)
-            prices.index = pd.to_datetime(prices.index, utc=True)
-            prices.index = prices.index.tz_convert(self.config.get_time_zone())
+            # prices.index = pd.to_datetime(prices.index, utc=True)
+            # prices.index = prices.index.tz_convert(self.config.get_time_zone())
             del updated_prices
         # Enregistrement en local
         prices.to_csv(data_full_path, index=True, sep=";")
+        # Mise en Forme des Dates
+        prices.index = pd.to_datetime(prices.index / 1000, unit='s', utc=True)
+        prices.index = prices.index.tz_convert(self.config.get_time_zone())
 
         # Enregistrement des Points
-        self.prices = prices
+        self.__prices = prices
         del prices
 
     # ==================================================================================================================
     # ==================================================================================================================
     # ==================================================================================================================
     # ==================================================================================================================
+    def calc(self):
+        raise NotImplementedError('Methode nom implémenté pour la class : calc')
+
+    def setTrend(self):
+        raise NotImplementedError("Methode nom implémenté pour la class : setTrend")
+
+    def find(self):
+        raise NotImplementedError("Methode nom implémenté pour la class : find")
 
     def plot(self):
         raise NotImplementedError("Methode nom implémenté pour la class : plot")
+
+    def pos(self):
+        raise NotImplementedError("Methode nom implémenté pour la class : positions")

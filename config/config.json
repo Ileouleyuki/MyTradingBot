@@ -18,11 +18,11 @@
             "main_ut": "M15",
             "stop_lvl": 15,
             "ratio": 2.0,
-            "nb_candles": 50,
-            "conversion_line_period":9,
-            "base_line_periods":26,
-            "laggin_span":52,
-            "displacement":26
+            "rsi_period":14,
+            "rsi_limit_over_buy":70,
+            "rsi_limit_over_sell":30,
+            "bb_period":21,
+            "bb_deviation":2
         }
     }
 }
