@@ -3,26 +3,26 @@
         "filepathCredentials": "config/xtb.json",
         "use_demo_account": true
     },
-    "spin_interval": "5m",
+    "spin_interval": "5s",
+    "strategies": {
+        "DEV": {
+            "bb_deviation": 2,
+            "bb_period": 21,
+            "main_ut": "M15",
+            "ratio": 2.0,
+            "rsi_limit_over_buy": 70,
+            "rsi_limit_over_sell": 30,
+            "rsi_period": 14,
+            "stop_lvl": 15
+        },
+        "active": "DEV",
+        "values": [
+            "DEV"
+        ]
+    },
     "time": {
         "hour_end": "18:30",
         "hour_start": "08:30",
         "time_zone": "Europe/Paris"
-    },
-    "strategies": {
-        "active": "DEV",
-        "values": [
-            "DEV"
-        ],
-        "DEV":{
-            "main_ut": "M15",
-            "stop_lvl": 15,
-            "ratio": 2.0,
-            "rsi_period":14,
-            "rsi_limit_over_buy":70,
-            "rsi_limit_over_sell":30,
-            "bb_period":21,
-            "bb_deviation":2
-        }
     }
 }

@@ -34,7 +34,7 @@ insertion_sql = """INSERT INTO {TABLE}(
                     LogLevel,
                     LogLevelName,
                     Message,
-                    Args,
+                    -- Args,
                     Module,
                     FuncName,
                     LineNo,
@@ -48,7 +48,7 @@ insertion_sql = """INSERT INTO {TABLE}(
                     %(levelno)d,
                     '%(levelname)s',
                     "%(msg)s",
-                    '%(args)s',
+                    -- '%(args)s',
                     '%(module)s',
                     '%(funcName)s',
                     %(lineno)d,
@@ -86,14 +86,16 @@ class SQLiteHandler(logging.Handler):
         self.format_time(record)
         print(record.msg)
         if record.exc_info:  # Pour exceptions
-            record.exc_text = logging._defaultFormatter.formatException(record.exc_info)
-            record.exc_text = record.exc_text.replace("'", '"')  # Remplacement des quotes provoqaunt une erreur
+            pass
+            # record.exc_text = logging._defaultFormatter.formatException(record.exc_info)
+            # record.exc_text = record.exc_text.replace("'", '"')  # Remplacement des quotes provoqaunt une erreur
         else:
             record.exc_text = ""
 
         # Insert the log record
         sql = insertion_sql.format(TABLE=self.table) % record.__dict__
         conn = sqlite3.connect(self.db)
+        # print(sql)
         conn.execute(sql)
         conn.commit()  # pas efficace, mais espérons-le thread-safe
 
@@ -177,6 +179,7 @@ class SQLiteUrlHandler(logging.Handler):
         # Insertion Requete
         conn = sqlite3.connect(self.db)
         conn.execute(sql)
+
         conn.commit()  # pas efficace, mais espérons-le thread-safe
 
         """
@@ -187,7 +190,6 @@ class SQLiteUrlHandler(logging.Handler):
             record.exc_text = record.exc_text.replace("'", '"')  # Remplacement des quotes provoqaunt une erreur
         else:
             record.exc_text = ""
-
         # Insert the log record
         sql = insertion_url_sql.format(TABLE=self.table) % record.__dict__
         conn = sqlite3.connect(self.db)

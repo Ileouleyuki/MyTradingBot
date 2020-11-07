@@ -262,6 +262,8 @@ def updateParam():
             config.set_filepathCredentials(data['filepathCredentials'])
         if 'use_demo_account' in data:
             config.set_use_demo_account(True if data['use_demo_account'] == 'true' else False)
+        if 'spin_interval' in data:
+            config.set_spin_interval(data['spin_interval'])
         # Envoi du message
         return Render.jsonTemplate(_OPERATION, 'Enregistrement de la Configuration', categorie="SUCCESS")
     else:

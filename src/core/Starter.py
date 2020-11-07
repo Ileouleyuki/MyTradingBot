@@ -38,8 +38,8 @@ from routes.api.orders.ApiOrders import api_orders_bp
 from routes.api.dashboard.ApiDashBoard import api_dashboard_bp
 from routes.api.bot.ApiBot import api_bot_bp
 
-loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
-loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
+# loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
+# loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
 ######################################################################################################
 # MAIN
 ######################################################################################################
@@ -61,7 +61,11 @@ def create_app():
     if not os.path.exists(cfg._TMP_PATH):
         os.makedirs(cfg._TMP_PATH)
 
+    # Clean logging handlers
+    # for handler in logging.root.handlers[:]:
+    #    logging.root.removeHandler(handler)
     # Initialisation du logger (Activité)
+    
     if cfg._LOG_ACTIVITY is True:
         loggerAct = logging.getLogger(cfg._LOG_ACTIVITY_NAME)
         loggerAct.setLevel(logging.DEBUG if cfg._ENV[cfg._ENVIRONNEMENT]["DEBUG_MODE"] else logging.INFO)
@@ -69,7 +73,7 @@ def create_app():
         sh = SQLiteHandler(db=cfg._LOG_ACTIVITY_BDD_PATH, table=cfg._LOG_ACTIVITY_TABLE)
         sh.setLevel(logging.DEBUG)
         logging.getLogger(cfg._LOG_ACTIVITY_NAME).addHandler(sh)
-
+    """
     # Initialisation du logger (Activité)
     if cfg._LOG_WATCHER is True:
         loggerWatch = logging.getLogger(cfg._LOG_WATCHER_NAME)
@@ -78,36 +82,45 @@ def create_app():
         sh = SQLiteUrlHandler(db=cfg._LOG_WATCHER_BDD_PATH, table=cfg._LOG_WATCHER_TABLE)
         sh.setLevel(logging.DEBUG)
         logging.getLogger(cfg._LOG_WATCHER_NAME).addHandler(sh)
-
+    
+    if cfg._LOG_BOT is True:
+        LOGGER = logging.getLogger(cfg._LOG_BOT_NAME)
+        LOGGER.setLevel(logging.DEBUG if cfg._ENV[cfg._ENVIRONNEMENT]["DEBUG_MODE"] else logging.INFO)
+        # sqlite handler
+        sh = SQLiteHandler(db=cfg._LOG_BOT_BDD_PATH, table=cfg._LOG_BOT_TABLE)
+        sh.setLevel(logging.DEBUG)
+        logging.getLogger().addHandler(sh)
+    """
     # Instanciation de l'app
     tmpl_dir = cfg._ROOT_DIR + os .sep + 'templates'
     static_dir = cfg._ROOT_DIR + os .sep + 'static'
-    loggerAct.info("Lancement Application : {} (Version : {})".format(cfg._APP_NAME, cfg._APP_VERSION))
+    # loggerAct.info("Lancement Application : {} (Version : {})".format(cfg._APP_NAME, cfg._APP_VERSION))
     app = Flask(
         __name__,
         static_folder=static_dir,
         template_folder=tmpl_dir
     )
     if cfg._ENV[cfg._ENVIRONNEMENT]["DEBUG_MODE"]:
-        loggerAct.debug('Activation du Mode Debug')
+        # loggerAct.debug('Activation du Mode Debug')
+        pass
 
     # Parametrage de Flask
-    loggerAct.debug('Parametrage de Flask')
+    # loggerAct.debug('Parametrage de Flask')
     app.config['SECRET_KEY'] = cfg._APP_SECRET_KEY
 
     app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(hours=cfg._APP_PERMANENT_SESSION_LIFETIME)
     # app.config['UPLOAD_FOLDER'] = cfg._UPLOAD_PATH
 
     # Enregistrements des routes
-    loggerAct.debug("Enregistrement des Routes")
+    # loggerAct.debug("Enregistrement des Routes")
     register_blueprints(app)
 
     # Enregistrements des ErrorsHandlers
-    loggerAct.debug("Instanciation des ErrorsHandlers")
+    # loggerAct.debug("Instanciation des ErrorsHandlers")
     register_errorhandlers(app)
 
     # Enregitrement du Watcher (Observateur des URL)
-    loggerAct.debug("Instanciation du Watcher (Observateur des URL)")
+    # loggerAct.debug("Instanciation du Watcher (Observateur des URL)")
     register_watcher(app)
 
     return app
@@ -222,8 +235,8 @@ def register_errorhandlers(app):
         """
         # Recuperation ERREUR et trace dans Activité
         exc_type, exc_value, exc_tb = sys.exc_info()
-        print(exc_value)
-        loggerAct.exception(e)
+        # print(exc_value)
+        # loggerAct.exception(e)
         # Renvoi Erreur
         if Utils.isAjaxRequest(request) is True:
             return Render.jsonTemplate(
@@ -262,7 +275,7 @@ def register_watcher(app):
                 '1' if Utils.isAjaxRequest(request) else '0'
             )
             # Enregistrement
-            loggerWatch.info(text)
+            # loggerWatch.info(text)
             """
             file_object = open(cfg._ENV[cfg._ENVIRONNEMENT]["LOG_WATCHER_FILE"], "a+")
             file_object.write("{} :: {} :: {} :: {} :: {} :: {} :: {} :: {}\n".format(

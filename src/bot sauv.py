@@ -29,6 +29,7 @@ class Bot():
         """
         self._t = None
         self._active = False
+        self.sleep_time = 5
         self.pid = randint(0000, 9999)
         # Setup LOGGING
         if cfg._LOG_BOT is True:
@@ -53,22 +54,20 @@ class Bot():
         LOGGER.warning("ACTIVATION DU ROBOT {}".format(VERSION))
         LOGGER.debug("PID {}".format(self.pid))
         self._active = True
-        if self._t is None and self._active is True:
-            print('start')
-            self._t = threading.Timer(0.5, self._run())
+        if self._t is None:
+            self._t = threading.Timer(self.wait_for(), self._run)
             self._t.start()
-            # self._run()
         else:
             LOGGER.error("Le BOT est déjà actif")
 
     def _run(self):
         LOGGER.debug("Debut du Traitement")
-        if self.is_in_session_trading():
+        if self.is_in_session_trading() is True:
             self.work()
         else:
             self.update()
         # Reprise d'une boucle de monitoring du thread
-        self._t = threading.Timer(self.wait_for(), self._run())
+        self._t = threading.Timer(self.wait_for(), self._run)
         self._t.start()
 
     def stop(self):
@@ -83,26 +82,26 @@ class Bot():
             self._t = None
             LOGGER.error('ARRET DU ROBOT')
 
+    # =================================================================================
+    #
+    #  ██████╗  ██████╗ ████████╗
+    #  ██╔══██╗██╔═══██╗╚══██╔══╝
+    #  ██████╔╝██║   ██║   ██║
+    #  ██╔══██╗██║   ██║   ██║
+    #  ██████╔╝╚██████╔╝   ██║
+    #  ╚═════╝  ╚═════╝    ╚═╝
+    #
+    # =================================================================================
+
     def work(self):
         """
         =============================================================
         Traitement lors des Session de Trading
         =============================================================
         """
-        LOGGER.info('TEST')
-        try:
-            # Process Before Iteration
-            self.process_before_iteration()
-            # Traitez maintenant les marchés
-            self.process_markets()
-            # Deconnexion Broker
-            # self.broker.logout()
-        except StopIteration as iter_err:
-            LOGGER.error(iter_err)
-        except Exception as exc_err:
-            LOGGER.exception(exc_err)
-        finally:
-            pass
+        LOGGER.debug('GO GO GO ')
+
+    # --------------------------------------------------------------------------------
 
     def update(self):
         """
@@ -195,7 +194,7 @@ class Bot():
         =============================================================
         """
         # [DEBUG] - Activation pour dev du weekend
-        return True
+        # return True
         # Verification jour ouvrables
         if datetime.datetime.today().weekday() > 4:
             return False

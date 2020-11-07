@@ -50,16 +50,16 @@
           {% if info.user.is_logged_in is defined and info.user.is_logged_in == True %}
           <!-- -->
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('home.home') }}"><i class="fas fa-tachometer-alt"></i>&nbspDashBoard</a>
+            <a class="nav-link" href="{{ url_for('home.home') }}"><i class="fas fa-tachometer-alt"></i>&nbsp&nbspDashBoard</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('home.markets') }}"><i class="fas fa-search-dollar"></i>&nbspMarchés</a>
+            <a class="nav-link" href="{{ url_for('home.markets') }}"><i class="fas fa-search-dollar"></i>&nbsp&nbspMarchés</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('home.orders') }}"><i class="fas fa-luggage-cart"></i>&nbspOrdres</a>
+            <a class="nav-link" href="{{ url_for('home.orders') }}"><i class="fas fa-luggage-cart"></i>&nbsp&nbspOrdres</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('bot.bot') }}"><i class="fas fa-robot"></i>&nbspRobot</a>
+            <a class="nav-link" href="{{ url_for('bot.bot') }}"><i class="fas fa-robot"></i>&nbsp&nbspRobot</a>
           </li>
           <!--
           <li class="nav-item">
@@ -68,12 +68,12 @@
           -->
           {% if info.app.environ == 'DEV' %}
           <li class="nav-item">
-            <a class="nav-link text-danger" href="{{ url_for('home.test') }}"><i class="fas fa-search-dollar"></i>&nbspTest</a>
+            <a class="nav-link text-danger" href="{{ url_for('home.test') }}"><i class="fas fa-search-dollar"></i>&nbsp&nbspTest</a>
           </li>
           {% endif %}
           {% if info.app.environ == 'DEV' %}
           <li class="nav-item">
-            <a class="nav-link text-danger" href="{{ url_for('dev.dev') }}"><i class="fas fa-search-dollar"></i>&nbspDev</a>
+            <a class="nav-link text-danger" href="{{ url_for('dev.dev') }}"><i class="fas fa-search-dollar"></i>&nbsp&nbspDev</a>
           </li>
           {% endif %}
 
@@ -92,7 +92,7 @@
           <a class="btn btn-secondary  my-2 my-sm-0" href="/login" type="button">Connexion</a>
         </form>
         {% else %}
-        <!-- COMPTER -->
+        <!-- COMPTE -->
         {% if info.compte.WorkOnCompte == 'DEMO'  %}
         <li class="nav-link disabled">
           <a class="text-light" href="#" tabindex="-1" aria-disabled="true" id=''><span class="badge badge-pill badge-light">DEMO</span></a>
@@ -105,7 +105,13 @@
         <li class="nav-link disabled">
           <a class="text-light" href="#" tabindex="-1" aria-disabled="true" id=''><span class="badge badge-pill badge-warning">???</span></a>
         </li>
+        
+
         {% endif %}
+        <!-- BOT -->
+        <li class="nav-link disabled">
+          <a class="text-light" href="" tabindex="-1" aria-disabled="true" id='StateBot'><span class="badge badge-pill badge-warning">???</span></a>
+        </li>
         <!-- HORLOGE -->
         <li class="nav-link disabled">
           <a class="text-light" href="" tabindex="-1" aria-disabled="true" id='Horloge'>Horloge</a>
@@ -137,23 +143,23 @@
             <!-- Administration -->
             <h6 class="dropdown-header">Administration</h6>
             <a class="dropdown-item" href="{{ url_for('admin.users') }}">
-              <i class="fas fa-user"></i>&nbspUtilisateurs
+              <i class="fas fa-user"></i>&nbsp&nbspUtilisateurs
             </a>
             <a class="dropdown-item" href="{{ url_for('admin.watcher') }}">
-              <i class="fas fa-glasses"></i>&nbspObservateur
+              <i class="fas fa-glasses"></i>&nbsp&nbspObservateur
             </a>
             <a class="dropdown-item" href="{{ url_for('admin.activity') }}">
-              <i class="fas fa-newspaper"></i>&nbspActivité
+              <i class="fas fa-newspaper"></i>&nbsp&nbspActivité
             </a>
              <a class="dropdown-item" href="{{ url_for('admin.param') }}">
-               <i class="fas fa-hammer"></i>&nbspConfiguration
+               <i class="fas fa-hammer"></i>&nbsp&nbspConfiguration
              </a>
             <hr>
             {% endif %}
             <hr>
             <!-- Deconnection -->
             <a class="dropdown-item" href="/logout">
-              <i class="fas fa-times-circle"></i>&nbspQuitter
+              <i class="fas fa-times-circle"></i>&nbsp&nbspQuitter
             </a>
           </div>
         </li>
@@ -274,14 +280,45 @@
     src="{{url_for('static', filename='assets/bootbox/5.4.0/bootbox.min.js')}}"></script>
   <!-- Custom JavaScript -->
   <script type="text/javascript" language="javascript" src=" {{url_for('static', filename='js/app.js')}}"></script>
-  <script type="text/javascript" language="javascript">window.onload = app.clock(); app.startLoader('body')</script>
-  <!-- Attribuer toutes les variables de configration -->
   <script>config = $.parseJSON('{{ info.js|tojson }}');</script>
+  <script>
+    // =================================================================================
+    // Ouverture QGIS
+    // =================================================================================
+    function getStateBot() {
+      var params = {"csrfToken": config.csrfToken}
+
+      $.post("{{ url_for('api.bot.getState') }}", params, function (result) {
+        if (result.data == false){
+          $('#StateBot').html('<span class="badge badge-pill badge-danger">ARRETE</span>')
+        }else if (result.data == true){
+          $('#StateBot').html('<span class="badge badge-pill badge-success">DEMARRE</span>')
+        }else{
+          $('#StateBot').html('<span class="badge badge-pill badge-warning">???</span>')
+        }
+      }, "json")
+        .done(function (msg) { })
+        .fail(function (xhr, status, error) {
+          notify.error(xhr.responseJSON)
+          //$('#StateBot').html('<span class="badge badge-pill badge-warning">???</span>')
+        })
+        .always(function (xhr, status, error) {
+          //app.stopLoader()
+        })
+  }
+  </script>
+
+  <script type="text/javascript" language="javascript">window.onload = app.clock(); app.startLoader('body');getStateBot();</script>
+  <!-- Attribuer toutes les variables de configration -->
+
 
   <!-- ===============================================================================  -->
   <!-- CUSTOM -->
   <!-- ===============================================================================  -->
+
   {% block javascript %}{% endblock %}
+
+  
 
 </body>
 </html>

@@ -44,7 +44,7 @@
             </div>
 
             <div class="form-group row">
-                <div class="col-sm-2">Compte de Trading</div>
+                <div class="col-sm-2 col-form-label">Compte de Trading</div>
                 <div class="col-sm-2">
                     <div class="custom-control custom-checkbox" style='padding-top: 0.3rem;'>
                         <input type="checkbox" class="custom-control-input" name="use_demo_account" id="use_demo_account">
@@ -58,6 +58,19 @@
                         Veuillez saisir un format d'heure HH:MM
                     </div>
                   </div>
+
+            </div>
+            <h4>Robot</h4>
+            <div class="form-group row">
+                <div class="col-sm-2 col-form-label">Interval de boucle</div>
+                <div class="col-sm-10">
+                        <input type="input" class="form-control bg-dark font-weight-bold text-info" name="spin_interval" id="hour_end" maxlength="3" placeholder="Temps d'attente entre deux boucles"  
+                        pattern="[0-90][a-z]" value="" required>
+                        <div class="valid-feedback">
+                            Veuillez saisir un format valide
+                        </div>
+                </div>
+                
 
             </div>
 
@@ -116,6 +129,8 @@
             $('#form-config').find("input[name=hour_start]").val(msg.data.time.hour_start)
             $('#form-config').find("input[name=hour_end]").val(msg.data.time.hour_end)
             $('#form-config').find("input[name=use_demo_account]").val(msg.data.broker.use_demo_account)
+            $('#form-config').find("input[name=spin_interval]").val(msg.data.spin_interval)
+            
             if(msg.data.broker.use_demo_account == 0){
                 $('#form-config').find("input[name=use_demo_account]").attr('checked', false);
             }else{

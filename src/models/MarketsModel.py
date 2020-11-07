@@ -107,6 +107,16 @@ class MarketsModel(SqliteAdapter):
             )
         df = self.getToDataFrame(query, Limit)
         return df
+    
+    def get_to_trade(self):
+        """
+        Retourne toutes les entrées de la table
+        """
+        query = """SELECT * from {TABLE} where trade = 1 order by trade desc""".format(
+                TABLE=self.table
+            )
+        df = self.getToDataFrame(query, None)
+        return df
 
     def upsert(self, record):
         """

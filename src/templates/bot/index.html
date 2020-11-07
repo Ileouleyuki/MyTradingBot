@@ -11,20 +11,20 @@
 <div class="container-fluid mt-3">
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-robot fa-lg text-white-100"></i>&nbsp&nbspActivité du Bot</h1>
+        <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-robot fa-lg text-white-100"></i>&nbsp&nbspActivité du Bot
+        </h1>
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button type="button" class="btn btn-lg btn-outline-danger" id='runButton'>Arreter</button>
+                <button type="button" class="btn btn-lg btn-outline-light" id='runButton'>ACTIVER</button>
             </div>
 
         </div>
     </div>
     <hr>
-    <div id="log-container" style="min-height: 650px;max-height: 650px;overflow-y: auto;" class="container-fluid">
-        <ul class="list-group" id="log">
-
-        </ul>
+    <div id="messages" style="height: 640px;overflow-y: hidden;">
+    
     </div>
+
     <br>
 
 </div>
@@ -36,54 +36,68 @@
 <!-- JS - DataTables + YADCF (Filters) -->
 <script>
     var timer = null
-    var interval = 1000 // 1s
+    var interval = 500 // 0.5s
     // =================================================================================
     // JAVASCRIPT
     // =================================================================================
     $(document).ready(function () {
         // -- Let's GO
-        //setTimeout(load_data_activity(), config.timeout)
+        setTimeout(isRunning(), config.timeout)
         //var timer = setInterval( load_data_activity(), 1000);
         //timer = setInterval(function() {load_data_activity()}, 1000);
 
-        setTimeout(app.stopLoader, config.timeout);
+        //setTimeout(app.stopLoader, config.timeout);
     });// -- Fin du document JAVASCRIPT
+    // =================================================================================
+    // -- Determine l'etat du Bot
+    // =================================================================================
+    function isRunning() {
+        var params = { "csrfToken": config.csrfToken }
+        $.post("{{ url_for('api.bot.getState') }}", params, function (result) {
+            console.log(result)
+            if (result.data == false) {
+                clearInterval(timer);
+                timer = null
+                load_data_activity()
+            } else if (result.data == true) {
+                timer = setInterval(function () { load_data_activity() }, 1000);
+            } else {
+                return
+            }
+        }, "json")
+            .done(function (msg) { })
+            .fail(function (xhr, status, error) {
+                notify.error(xhr.responseJSON)
+                //$('#StateBot').html('<span class="badge badge-pill badge-warning">???</span>')
+            })
+            .always(function (xhr, status, error) {
+                // -- Fin du loader
+                app.stopLoader('body')
+            })
+    }
     // =================================================================================
     // Clique sur Run 
     // =================================================================================
     $("#runButton").click(function () {
         var $this = $(this);
         // -- Recuperation des données du Formulaire
-        ($this.html() == 'Arreter') ? toState = 1 : toState = 0
-        params = {
-            "toState": toState
-        }
+        var params = { "csrfToken": config.csrfToken }
         // -- Chargement du loader
         app.startLoader('body')
         // -- Lancement du traitement 
-        $.post("{{ url_for('api.bot.run') }}", params, function (result) {}, "json")
-        .done(function(msg){ 
-            if (msg.mess == 'RUN'){
-                //$("#runButton").removeClass().addClass('btn btn-outline-success btn-lg')
-                //$("#runButton").html('Demarrer')
-                if (timer !== null) return;
-                timer = setInterval(function() {load_data_activity()}, interval);
-            }else if (msg.mess == 'STOP'){
-                //$("#runButton").removeClass().addClass('btn btn-outline-danger btn-lg')
-                //$("#runButton").html('Arreter')
-                clearInterval(timer);
-                timer = null
-            }
-        })
-        .fail(function(xhr, status, error) {
-            console.log('fail')
-            notify.error(xhr.responseJSON)
-        }).always(function () {
-            console.log('always')
-            // -- Fin du loader
-            app.stopLoader('body')
-        });;
-        });
+        $.post("{{ url_for('api.bot.run') }}", params, function (result) { }, "json")
+            .done(function (msg) { isRunning() })
+            .fail(function (xhr, status, error) {
+                console.log('fail')
+                notify.error(xhr.responseJSON)
+            }).always(function () {
+                console.log('always')
+                getStateBot()
+                // -- Fin du loader
+                app.stopLoader('body')
+            });;
+    });
+
 
     // =================================================================================
     // -- Chargement du Tableau
@@ -95,20 +109,6 @@
             // -- Lancement du traitement 
             $.post("{{ url_for('api.bot.getActivityEntries') }}", data, function (result) { }, "json")
                 .done(function (msg) {
-                    console.log('done')
-                    if (msg.data.state == 'RUN'){
-                        $("#runButton").removeClass().addClass('btn btn-outline-success btn-lg')
-                        $("#runButton").html('Demarrer')
-                        if (timer !== null) return;
-                        timer = setInterval(function() {load_data_activity()}, interval);
-                        
-                    }else if (msg.mess == 'STOP'){
-                        $("#runButton").removeClass().addClass('btn btn-outline-danger btn-lg')
-                        $("#runButton").html('Arreter')
-                        clearInterval(timer);
-                        timer = null
-                        return
-                    }
                     // -- Modification du DOM
                     //console.log(msg)
                     $.each(msg.data.entries, function (key, value) {
@@ -121,19 +121,20 @@
                         tmpDate = moment.utc(value.TimeStampUtc).tz(config.timeZone)
                         // -- Construction du texte
                         text = ""
-                        text += "<div class='row' id='" + value.id + "'>"
-                        text += "   <div class='col-lg-12 col-md-12 col-sm-12 text-left'>"
-
-                        text += "<span class='float-md-left'>"
+                        text += "<div id='" + value.id + "'>"
+                       
                         text += tmpDate.format("ddd DD MMM YYYY HH:mm:ss") + "&nbsp&nbsp >>> &nbsp&nbsp"
 
                         // -- Categorie
                         switch (value.LogLevelName) {
                             case 'INFO':
-                                text += "<span class='text-info font-weight-bold'>" + value.Message + "</span>" + "&nbsp"
+                                text += "<span class='font-weight-bold'>" + value.Message + "</span>" + "&nbsp"
                                 break;
                             case 'ERROR':
                                 text += "<span class='text-danger font-weight-bold'>" + value.Message + "</span>" + "&nbsp"
+                                break;
+                            case 'DEBUG':
+                                text += "<span class='text-secondary font-weight-bold'>" + value.Message + "</span>" + "&nbsp"
                                 break;
                             case 'WARNING':
                                 text += "<span class='text-warning font-weight-bold'>" + value.Message + "</span>" + "&nbsp"
@@ -144,47 +145,30 @@
                         }
                         text += "</span>"
                         // Delai
-                        text += "<span class='float-md-right font-italic'>" + tmpDate.fromNow() + "</span>"
+                        //text += "<span class='float-md-right font-italic'>" + tmpDate.fromNow() + "</span>"
+                       
                         text += "</div>"
-                        text += "</div>"
-                        $("#log").append(text)
-                        /*
-                        // -- Construction du Text
-                        //moment(value.TimeStampUtc).tz(config.timeZone).format("ddd DD MMM YYYY HH:mm:ss")
-                        text = ''
-                        switch (value.LogLevelName) {
-                            case 'DEBUG':
-                                text = '<a class="list-group-item list-group-item-warning text-dark">'
-                                break;
-                            case 'ERROR':
-                                text = '<a class="list-group-item list-group-item-danger text-dark">'
-                                break;
-                            default:
-                                text = '<a class="list-group-item">';
-                                break;
-                        }
-                        //text += value.TimeStampUtc + "-" + value.Message
-                        text += '<div class="d-flex w-100 justify-content-between">'
-                        text += '<h5 class="mb-1"><span class="badge badge-info">' + value.LogLevelName + '</span>&nbsp&nbsp&nbsp' + tmpDate.format("ddd DD MMM YYYY HH:mm:ss") + '</h5>'
-                        text += '<small>' + tmpDate.fromNow() + '</small>'
-                        text += '</div>'
-                        text += '<p class="mb-1 font-weight-bold">' + value.Message + '</p>'
-                        //text += '<small>Donec id elit non mi porta.</small>'
-                        text += '</a>'
-                        */
-                        
-
+                        $("#messages").append(text)
                     });
+                    console.log('HEIGHT : ' + $("#log-container").scrollHeight)
+                    // -- Auto Scroll
+                    const messages = document.getElementById('messages');
+                    shouldScroll = messages.scrollTop + messages.clientHeight === messages.scrollHeight;
+                    if (!shouldScroll) {
+                        messages.scrollTop = messages.scrollHeight;
+                    }
+                    //console.log(shouldScroll)
+                    //$("#log-container").animate({ scrollTop: $(document).scrollHeight()}, 500);
 
-                })
-                .fail(function (xhr, status, error) {
+
+                }).fail(function (xhr, status, error) {
                     console.log('fail')
                     notify.error(xhr.responseJSON)
                 }).always(function () {
                     console.log('always')
                     // -- Auto Scroll
                     //$("#log-container").scrollTop($("#log-container").height())
-                    $("#log-container").animate({ scrollTop: $(document).height() +1000 }, 500);
+
                     // -- Fin du loader
                     app.stopLoader('body')
 

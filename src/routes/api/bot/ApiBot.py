@@ -17,7 +17,6 @@ from core.Config import cfg
 
 # from core.Exceptions import AppException
 from core.Render import Render
-from core.Utils import Utils
 from core.Decorateur import csrf_protect, login_required, roles_accepted
 from bot import Bot
 # Models
@@ -33,7 +32,7 @@ BOT = Bot()
 ######################################################################################################
 api_bot_bp = Blueprint('api.bot', __name__)
 
-_OPERATION = "BOT"
+_OPERATION = "Gestion du BOT"
 ######################################################################################################
 # ACTIVITY
 ######################################################################################################
@@ -54,11 +53,25 @@ def getActivityEntries():
         # Recuperation des infos
         entries = LogBotModel().getAll()
         data = {
-            "entries": entries.to_dict("Record"),
-            'state': BOT.state
+            "entries": entries.to_dict("records"),
+            'state': BOT.active
         }
         # Retour du message
         return Render.jsonTemplate(_OPERATION, 'Bot', categorie="SUCCESS", data=data)
+    else:
+        abort(400)
+
+# ----------------------------------------------------------------------------------------------------
+# Chemin POST (XHR) pour renvoyer les infos des Logs d'activité
+# Activité de l'application
+# ----------------------------------------------------------------------------------------------------
+
+
+@api_bot_bp.route('/getState', methods=['POST'])
+@login_required
+def getState():
+    if request.method == 'POST':
+        return Render.jsonTemplate(_OPERATION, 'Statut du Bot', categorie="SUCCESS", data=BOT.active, silent=True)
     else:
         abort(400)
 
@@ -72,23 +85,13 @@ def getActivityEntries():
 @login_required
 def run():
     if request.method == 'POST':
-        global stop_run
-        # Recuperation + traitement des données du formulaire
-        data = Utils.parseForm(dict(request.form))
-        if data["toState"] == "1":
-            BOT.start()
-            # stop_run = False
-            # manual_run()
-            return Render.jsonTemplate(_OPERATION, 'RUN', categorie="SUCCESS")
-        elif data["toState"] == "0":
+        if BOT.active is True:
             BOT.stop()
-            return Render.jsonTemplate(_OPERATION, 'STOP', categorie="SUCCESS")
+            return Render.jsonTemplate(_OPERATION, 'Arret du Bot', categorie="SUCCESS", data=BOT.active)
+        elif BOT.active is False:
+            BOT.start()
+            return Render.jsonTemplate(_OPERATION, 'Demarrage du Bot', categorie="SUCCESS", data=BOT.active)
         else:
-            return Render.jsonTemplate(_OPERATION, 'Impossible à determiner', categorie="ERROR")
-        # Decryptage id
-        # data["id"] = Crypt.decode(cfg._APP_SECRET_KEY, data["id"])
-        # Recuperation des infos
-        # MarketsModel().update(data)
-        # Retour du message
+            return Render.jsonTemplate(_OPERATION, '????', categorie="ERROR", data=BOT.active)
     else:
         abort(400)
